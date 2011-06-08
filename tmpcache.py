@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+import hashlib
 
 class cache(object):
     """Decorator that caches a function's return value each time it is called.
@@ -14,15 +15,15 @@ class cache(object):
         self.func = func
         def _func(*args, **kwargs):
             try:
-               return self.cache[args]
+                return self.cache[args]
             except KeyError:
-               value = self.func(*args, **kwargs)
-               self.cache[args] = value
-               return value
+                value = self.func(*args, **kwargs)
+                self.cache[args] = value
+                return value
             except TypeError:
-               # uncachable -- for instance, passing a list as an argument.
-               # Better to not cache than to blow up entirely.
-               return self.func(*args, **kwargs)
+                # uncachable -- for instance, passing a list as an argument.
+                # Better to not cache than to blow up entirely.
+                return self.func(*args, **kwargs)
         return _func
 
     def __repr__(self):
