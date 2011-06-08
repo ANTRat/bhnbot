@@ -5,6 +5,7 @@ import urllib2
 import json
 import locale
 import re
+from tmpcache import cache
 
 TICKER = "https://mtgox.com/code/data/ticker.php"
 UNPAID_ELIGIUS_ST = "http://eligius.st/~artefact2/json/balance_unpaid_%s_%s.json"
@@ -33,39 +34,36 @@ LOCALE_CRNCY_RE = getcurrencyre(LOCALE_CRNCYSTR)
 BTC_CRNCY_RE = getcurrencyre('-' + BTC)
 BTC2_CRNCY_RE = getcurrencyre('-B')
 
-def getticker():
-    f = urllib2.urlopen(TICKER)
-    resp = json.load(f)
+@cache(seconds=60)
+def urlopen(*args, **kwargs):
+    f = urllib2.urlopen(*args, **kwargs)
+    resp = f.read()
     f.close()
     return resp
+
+def getticker():
+    return json.loads(urlopen(TICKER))
 
 def getbalance_unpaid(address, pool=None):
     if pool == None:
         return getbalance_unpaid(address, 'eu') + getbalance_unpaid(address, 'us')
     else:
-        f = urllib2.urlopen(UNPAID_ELIGIUS_ST % (pool, address))
-        resp = json.load(f)[-1][1]
-        f.close()
-        return resp
-
+        resp = urlopen(UNPAID_ELIGIUS_ST % (pool, address))
+        return json.loads(resp)[-1][1]
 
 def getbalance_paid(address, pool=None):
     if pool == None:
         return getbalance_paid(address, 'eu') + getbalance_paid(address, 'us')
     else:
-        f = urllib2.urlopen(PAID_ELIGIUS_ST % (pool, address))
-        resp = json.load(f)[-1][1]
-        f.close()
-        return resp
+        resp = urlopen(PAID_ELIGIUS_ST % (pool, address))
+        return json.loads(resp)[-1][1]
 
 def getbalance_currentblock(address, pool=None):
     if pool == None:
         return getbalance_currentblock(address, 'eu') + getbalance_currentblock(address, 'us')
     else:
-        f = urllib2.urlopen(CURRENTBLOCK_ELIGIUS_ST % (pool, address))
-        resp = json.load(f)[-1][1]
-        f.close()
-        return resp
+        resp = urlopen(CURRENTBLOCK_ELIGIUS_ST % (pool, address))
+        return json.load(resp)[-1][1]
 
 def cur_to_locale(value, international=False):
     return locale.currency(value, True, True, international=international)
@@ -111,6 +109,8 @@ def test_ticker():
     print "Sell: {ticker[sell]}  Buy: {ticker[buy]}  High: {ticker[high]}  Low: {ticker[low]}  Last: {ticker[last]}  Vol: {ticker[vol]}".format(**ticker)
 
 if __name__ == "__main__":
+    print getticker()
+    print 'cached:',getticker()
     value = BTC+"1,234,567,890"
     print cur_parse(value)
     value = "$1,234,567,890"
