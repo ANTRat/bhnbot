@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+import time
 import hashlib
 
 class cache(object):
@@ -14,11 +15,17 @@ class cache(object):
     def __call__(self, func):
         self.func = func
         def _func(*args, **kwargs):
+            m = hashlib.md5()
+            m.update(repr([args, kwargs]))
+            digest = m.digest()
             try:
-                return self.cache[args]
+                if(self.cache[digest]['timeout'] > time.time()):
+                    # if the timeout has not been reached
+                    return self.cache[digest]['value']
+                raise KeyError
             except KeyError:
                 value = self.func(*args, **kwargs)
-                self.cache[args] = value
+                self.cache[digest] = dict(value=value, timeout=(time.time() + self.timeout))
                 return value
             except TypeError:
                 # uncachable -- for instance, passing a list as an argument.
@@ -34,7 +41,7 @@ class cache(object):
         """Support instance methods."""
         return functools.partial(self.__call__, obj)
 
-@cache()
+@cache(seconds=1)
 def fibonacci(n):
     "Return the nth fibonacci number."
     if n in (0, 1):
