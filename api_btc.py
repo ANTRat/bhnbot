@@ -63,7 +63,7 @@ def getbalance_currentblock(address, pool=None):
         return getbalance_currentblock(address, 'eu') + getbalance_currentblock(address, 'us')
     else:
         resp = urlopen(CURRENTBLOCK_ELIGIUS_ST % (pool, address))
-        return json.load(resp)[-1][1]
+        return json.loads(resp)[-1][1]
 
 def cur_to_locale(value, international=False):
     return locale.currency(value, True, True, international=international)
