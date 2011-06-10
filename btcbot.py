@@ -11,6 +11,8 @@ import traceback
 
 USD="$"
 BTC='\xe0\xb8\xbf'
+APROX='\xe2\x89\x88'
+
 HOST="irc.gamesurge.net"
 PORT=6667
 PASS=None
@@ -83,7 +85,19 @@ while connected:
                             unpaid = api_btc.getbalance_unpaid(ADDRESS, POOL)
                             paid = api_btc.getbalance_paid(ADDRESS, POOL)
                             block = api_btc.getbalance_currentblock(ADDRESS, POOL)
-                            cmd("PRIVMSG", CHAN, ":Address: {address}  Paid: {BTC}{paid}  Unpaid: {BTC}{unpaid}  CurrentBlock: {BTC}{block}  Total: {BTC}{total}".format(BTC=BTC, address=ADDRESS, paid=paid, unpaid=unpaid, block=block, total=(paid+unpaid+block)))
+                            total = paid + unpaid + block
+                            ticker = api_btc.getticker()['ticker']
+                            total_locale = api_btc.cur_to_locale(total * ticker['last'])
+                            cmd("PRIVMSG", CHAN, ":Address: {address}  Paid: {BTC}{paid}  Unpaid: {BTC}{unpaid}  CurrentBlock: {BTC}{block}  Total: {BTC}{total} {APROX} {total_locale}".format(
+                                BTC = BTC,
+                                APROX = APROX,
+                                address = ADDRESS,
+                                paid = paid,
+                                unpaid = unpaid,
+                                block = block,
+                                total = total,
+                                total_locale = total_locale
+                            ))
                         elif((len(line) == 6 or len(line) == 7) and line[4].lower()=="paid"):
                             ADDRESS = line[5]
                             POOL = None
