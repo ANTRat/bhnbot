@@ -23,17 +23,19 @@ CHAN='#bhngaming'
 readbuffer=""
 connected = True
 
+
 s=socket.socket( )
 s.connect((HOST, PORT))
-if PASS:
-    s.send("PASS %s\r\n" % PASS)
-s.send("NICK %s\r\n" % NICK)
-s.send("USER %s %s bla :%s\r\n" % (IDENT, HOST, REALNAME))
 
 def cmd(*args):
     command = " ".join(args)
     print "sending:", command
     s.send("%s\r\n" % command)
+
+if PASS:
+    cmd("PASS", PASS)
+cmd("NICK", NICK)
+cmd("USER %s %s bla :%s\r\n" % (IDENT, HOST, REALNAME))
 
 while connected:
     try:
@@ -45,13 +47,15 @@ while connected:
             line=string.rstrip(line)
             line=string.split(line)
 
+            print repr(line)
+
             if(line[0]=="PING"):
-                s.send("PONG %s\r\n" % line[1])
+                cmd("PONG", line[1])
             elif(line[1]=="NOTICE"):
                 pass
             elif(line[1]=='433' and line[3] == NICK):
-                 NICK+='`'
-                 cmd("NICK", NICK)
+                NICK+='`'
+                cmd("NICK", NICK)
             elif(line[1]=='001' and line[2] == NICK):
                 cmd("JOIN", CHAN)
             elif(line[1]=='PRIVMSG' and line[2].lower() == CHAN):
@@ -123,7 +127,7 @@ while connected:
                                 resp = api_btc.cur_to_locale(value * ticker['last'])
                             else:
                                 raise ValueError("Unknown input locale: %s" % input_locale)
-
+ 
                             cmd("PRIVMSG", CHAN, ":{input_value} is valued at {dest_value}".format(
                                 input_value = input_value,
                                 dest_value = resp
@@ -137,7 +141,7 @@ while connected:
                     cmd("PRIVMSG", CHAN, ":Error: %s" % str(e))
                     traceback.print_exc(file=sys.stderr)
             else:
-                print repr(line)
+                pass
     except KeyboardInterrupt:
         cmd("QUIT")
         connected = False
