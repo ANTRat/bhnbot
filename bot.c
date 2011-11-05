@@ -2,6 +2,7 @@
 ** showip.c -- show IP addresses for a host given on the command line
 */
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,18 +30,24 @@ int sendident(int s, char* nick, char* user, char* host);
 int pong(int s, char* cmd_token);
 int cmd_hi(int s, char* cmd_token);
 
+// signal handling from: http://www.gnu.org/s/hello/manual/libc/Handler-Returns.html
+volatile sig_atomic_t running = 1;
+
+void handle_sigint(int sig) {
+    running = 0;
+    signal(sig, handle_sigint);
+}
+
 int main(int argc, char *argv[])
 {
-    char* serv = "irc.gamesurge.net";
+    //char* serv = "irc.gamesurge.net";
+    char* serv = "irc.fauxsoft.com";
     char* port = "6667";
     char* nick = "btc-bot";
     struct addrinfo hints, *res;
     int status;
 
-    //if (argc != 2) {
-    //    fprintf(stderr,"usage: showip hostname\n");
-    //    return 1;
-    //}
+    signal(SIGINT, handle_sigint);
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
@@ -72,7 +79,7 @@ int main(int argc, char *argv[])
     char* cmd_token;
     char* cmd_buff;
     
-    while(1){
+    while(running){
         memset(buff, 0, max_len);
         if((status = recv(s, buff, max_len, 0)) > 0) {
             printf("status: %d\n", status);
@@ -152,7 +159,7 @@ int main(int argc, char *argv[])
 
     freeaddrinfo(res); // free the linked list
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int sendident(int s, char* nick, char* user, char* host){
