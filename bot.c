@@ -71,7 +71,6 @@ int main(int argc, char *argv[])
     char* line_buff;
     char* cmd_token;
     char* cmd_buff;
-    const char delim[] = "\n";
     
     while(1){
         memset(buff, 0, max_len);
@@ -167,11 +166,9 @@ int sendident(int s, char* nick, char* user, char* host){
     snprintf(nick_buff, 255, nick_templ, nick);
     snprintf(user_buff, 255, user_templ, user, host);
 
-    printf(nick_buff);
     if((status = send(s, nick_buff, strlen(nick_buff), 0)) == -1) {
         return status;
     }
-    printf(user_buff);
     if((status = send(s, user_buff, strlen(user_buff), 0)) == -1) {
         return status;
     }
@@ -189,7 +186,6 @@ int pong(int s, char* cmd_token) {
     memset(pong_msg, 0,  255);
 
     sprintf(pong_msg, "PONG %s\r\n", cmd_token);
-    printf(pong_msg);
     send(s, pong_msg, strlen(pong_msg), 0);
 
     free(pong_msg);
