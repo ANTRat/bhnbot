@@ -18,14 +18,14 @@ size_t cmd_http_writecallback(char *ptr, size_t size, size_t nmemb, void *userda
     for(i = 0; i < (size * nmemb); i++) {
         if (strncmp("<title>", ptr + i, strlen("<title>")) == 0) {
             title_start_loc = i + strlen("<title>");
-        }
+        } else
         if (strncmp("</title>", ptr + i, strlen("</title>")) == 0) {
             title_end_loc = i;
             break;
-        }
+        } else
         if (strncmp("<TITLE>", ptr + i, strlen("<TITLE>")) == 0) {
             title_start_loc = i + strlen("<TITLE>");
-        }
+        } else
         if (strncmp("</TITLE>", ptr + i, strlen("</TITLE>")) == 0) {
             title_end_loc = i;
             break;
@@ -67,8 +67,15 @@ int cmd_youtube(int s, char* line, char* token) {
     char* pong_msg = malloc(sizeof(char) * 4096);
     memset(pong_msg, 0,  4096);
 
+    switch(resp) {
+        case 200:
+            sprintf(pong_msg, "PRIVMSG #BHNGAMING :[ %s ]\r\n", title );
+            break;
+        default:
+            sprintf(pong_msg, "PRIVMSG #BHNGAMING :[ HttpErr: %li ]\r\n", resp );
+            break;
+    }
 
-    sprintf(pong_msg, "PRIVMSG #BHNGAMING :[ %s ]\r\n", title );
     send(s, pong_msg, strlen(pong_msg), 0);
 
     free(pong_msg);
