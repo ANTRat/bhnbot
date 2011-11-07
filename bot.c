@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include "botcmd_youtube.h"
 
 char* strtolower(char* str) {
     char *p;
@@ -44,11 +45,14 @@ int main(int argc, char *argv[])
     char* serv = "irc.fauxsoft.com";
     char* port = "6667";
     char* nick = "btc-bot";
+    char* channel = "#BHNGAMING";
     struct timeval timeout;
     struct addrinfo hints, *res;
     int status;
 
     signal(SIGINT, handle_sigint);
+
+    cmd_youtube_init();
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
@@ -101,6 +105,10 @@ int main(int argc, char *argv[])
             printf("status: %d\n", status);
             // per line loop
             for( line_token = strtok_r(buff, "\r\n", &line_buff) ; line_token != NULL ; line_token = strtok_r(NULL, "\r\n", &line_buff) ) {
+                //char *line = malloc(sizeof(char) * strlen(line_token) + 1);
+                char line[strlen(line_token) + 1];
+                strcpy(line, line_token);
+
                 printf("LIN[%d]: '%s'\n", status, line_token);
                 int tkn_indx;
                 for(    tkn_indx = 0 , cmd_token = strtok_r(line_token, " ", &cmd_buff) ;
@@ -117,16 +125,22 @@ int main(int argc, char *argv[])
 
                     if(tkn_indx == 1 && strncmp("PRIVMSG", strtoupper(cmd_token), strlen("PRIVMESG")) == 0) {
                         cmd_token = strtok_r(NULL, " ", &cmd_buff);
-                        if(strncmp("#BHNGAMING", strtoupper(cmd_token), strlen("#BHNGAMING")) == 0){
+                        if(strncmp(channel, strtoupper(cmd_token), strlen(channel)) == 0){
                             cmd_token = strtok_r(NULL, " ", &cmd_buff);
+
+                            char cmd[strlen(cmd_token) + 1];
+                            strcpy(cmd, cmd_token);
+
                             if(strncmp(":!DICKS", strtoupper(cmd_token), strlen(":!DICKS")) == 0){
                                 cmd_hi(s, "List of Dicks:");
                                 cmd_hi(s, " You");
                                 cmd_hi(s, "-- Done");
+                            } else if(strncmp(":http://", strtolower(cmd_token), strlen(":http://")) == 0){
+                                cmd_youtube(s, line, cmd + 1);
                             }
                         }
                     } else if(tkn_indx == 1 && strncmp("001", strtoupper(cmd_token), strlen("001")) == 0) {
-                        char* join_cmd = "JOIN #bhngaming\r\n";
+                        char* join_cmd = "JOIN #BHNGAMING\r\n";
                         send(s, join_cmd, strlen(join_cmd), 0);
                     }
                     printf("CMD[%d]:        '%s'\n", tkn_indx, cmd_token);
@@ -140,6 +154,8 @@ int main(int argc, char *argv[])
     free(buff);
 
     freeaddrinfo(res); // free the linked list
+
+    cmd_youtube_cleanup();
 
     return EXIT_SUCCESS;
 }
@@ -186,7 +202,7 @@ int cmd_hi(int s, char* cmd_token) {
     char* pong_msg = malloc(sizeof(char) * 4096);
     memset(pong_msg, 0,  4096);
 
-    sprintf(pong_msg, "PRIVMSG #bhngaming :%s\r\n", cmd_token);
+    sprintf(pong_msg, "PRIVMSG #BHNGAMING :%s\r\n", cmd_token);
     send(s, pong_msg, strlen(pong_msg), 0);
 
     free(pong_msg);
