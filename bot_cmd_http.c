@@ -39,6 +39,14 @@ size_t cmd_http_writecallback(char *ptr, size_t size, size_t nmemb, void *userda
     }
 
     title_start_loc = i;
+
+    for(i = title_end_loc - 1; i > title_start_loc; i--) {
+        if( isgraph(ptr[i]) ) {
+            break;
+        }
+    }
+
+    title_end_loc = i + 1;
     
     if(title_start_loc != 0 && title_end_loc != 0) {
         memset(title, 0,  4096);
