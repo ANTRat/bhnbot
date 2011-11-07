@@ -105,8 +105,7 @@ int main(int argc, char *argv[])
             printf("status: %d\n", status);
             // per line loop
             for( line_token = strtok_r(buff, "\r\n", &line_buff) ; line_token != NULL ; line_token = strtok_r(NULL, "\r\n", &line_buff) ) {
-                //char *line = malloc(sizeof(char) * strlen(line_token) + 1);
-                char line[strlen(line_token) + 1];
+                char *line = malloc(sizeof(char) * strlen(line_token) + 1);
                 strcpy(line, line_token);
 
                 printf("LIN[%d]: '%s'\n", status, line_token);
@@ -128,18 +127,35 @@ int main(int argc, char *argv[])
                         if(strncmp(channel, strtoupper(cmd_token), strlen(channel)) == 0){
                             cmd_token = strtok_r(NULL, " ", &cmd_buff);
 
-                            char cmd[strlen(cmd_token) + 1];
+                            char* cmd = malloc(sizeof(char) * strlen(cmd_token) + 1);
                             strcpy(cmd, cmd_token);
 
                             if(strncmp(":!DICKS", strtoupper(cmd_token), strlen(":!DICKS")) == 0){
                                 cmd_hi(s, "List of Dicks:");
                                 cmd_hi(s, " You");
                                 cmd_hi(s, "-- Done");
-                            } else if(strncmp(":http://", strtolower(cmd_token), strlen(":http://")) == 0){
-                                cmd_http(s, 0, line, cmd + 1);
-                            } else if(strncmp(":https://", strtolower(cmd_token), strlen(":https://")) == 0){
-                                cmd_http(s, 1, line, cmd + 1);
+                            } else if( strstr(line, "http://") != NULL ) {
+                                char* http_indx = strstr(line, "http://");
+                                char* spc_loc;
+                                for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
+                                    if( !isgraph(*spc_loc) ) {
+                                        break;
+                                    }
+                                }
+                                *spc_loc = '\0';
+                                cmd_http(s, 0, line, http_indx);
+                            } else if( strstr(line, "https://") != NULL ) {
+                                char* http_indx = strstr(line, "https://");
+                                char* spc_loc;
+                                for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
+                                    if( !isgraph(*spc_loc) ) {
+                                        break;
+                                    }
+                                }
+                                *spc_loc = '\0';
+                                cmd_http(s, 1, line, http_indx);
                             }
+                            free(cmd);
                         }
                     } else if(tkn_indx == 1 && strncmp("001", strtoupper(cmd_token), strlen("001")) == 0) {
                         char* join_cmd = "JOIN #BHNGAMING\r\n";
@@ -147,6 +163,8 @@ int main(int argc, char *argv[])
                     }
                     printf("CMD[%d]:        '%s'\n", tkn_indx, cmd_token);
                 }
+
+                free(line);
             }
 
             printf("thats it!\n");
