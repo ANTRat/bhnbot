@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     //char* serv = "irc.gamesurge.net";
     char* serv = "irc.fauxsoft.com";
     char* port = "6667";
-    char* nick = "btc-bot";
+    char* nick = "bhn-bot";
     char* channel = "#BHNGAMING";
     struct timeval timeout;
     struct addrinfo hints, *res;
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 int sendident(int s, char* nick, char* user, char* host){
     int status = 0;
     char* nick_templ = "NICK %s\r\n";
-    char* user_templ = "USER %s %s bla :Bitcoin Bot\r\n";
+    char* user_templ = "USER %s %s bla :Bright Bot\r\n";
 
     char* nick_buff = malloc(sizeof(char) * 255);
     char* user_buff = malloc(sizeof(char) * 255);
