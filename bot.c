@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-#include "botcmd_youtube.h"
+#include "bot_cmd_http.h"
 
 char* strtolower(char* str) {
     char *p;
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
     signal(SIGINT, handle_sigint);
 
-    cmd_youtube_init();
+    cmd_http_init();
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
@@ -136,7 +136,9 @@ int main(int argc, char *argv[])
                                 cmd_hi(s, " You");
                                 cmd_hi(s, "-- Done");
                             } else if(strncmp(":http://", strtolower(cmd_token), strlen(":http://")) == 0){
-                                cmd_youtube(s, line, cmd + 1);
+                                cmd_http(s, 0, line, cmd + 1);
+                            } else if(strncmp(":https://", strtolower(cmd_token), strlen(":https://")) == 0){
+                                cmd_http(s, 1, line, cmd + 1);
                             }
                         }
                     } else if(tkn_indx == 1 && strncmp("001", strtoupper(cmd_token), strlen("001")) == 0) {
@@ -155,7 +157,7 @@ int main(int argc, char *argv[])
 
     freeaddrinfo(res); // free the linked list
 
-    cmd_youtube_cleanup();
+    cmd_http_cleanup();
 
     return EXIT_SUCCESS;
 }

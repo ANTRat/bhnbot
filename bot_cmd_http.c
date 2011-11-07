@@ -45,14 +45,21 @@ size_t cmd_http_writecallback(char *ptr, size_t size, size_t nmemb, void *userda
     return size * nmemb;
 }
 
-int cmd_youtube(int s, char* line, char* token) {
+int cmd_http(int s, int https, char* line, char* token) {
     int status = 0;
     title = malloc(sizeof(char) * 4096);
 
     CURL* c = curl_easy_init();
-    curl_easy_setopt(c, CURLOPT_URL, token + strlen("http://"));
+    if( https ) {
+        curl_easy_setopt(c, CURLOPT_URL, token + strlen("https://"));
+    } else {
+        curl_easy_setopt(c, CURLOPT_URL, token + strlen("http://"));
+    }
     curl_easy_setopt(c, CURLOPT_PROTOCOLS, CURLPROTO_HTTP);
+    curl_easy_setopt(c, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP);
     curl_easy_setopt(c, CURLOPT_HTTPGET, 1);
+    curl_easy_setopt(c, CURLOPT_FOLLOWLOCATION, 1);
+    curl_easy_setopt(c, CURLOPT_MAXREDIRS, 10);
     //curl_easy_setopt(c, CURLOPT_USERAGENT, "curl/7.21.3 (x86_64-pc-linux-gnu) libcurl/7.21.3 OpenSSL/0.9.8o zlib/1.2.3.4 libidn/1.18");
     curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, &cmd_http_writecallback);
     curl_easy_setopt(c, CURLOPT_VERBOSE, 1);
@@ -84,10 +91,10 @@ int cmd_youtube(int s, char* line, char* token) {
     return status;
 }
 
-void cmd_youtube_init() {
+void cmd_http_init() {
     curl_global_init(CURL_GLOBAL_ALL);
 }
 
-void cmd_youtube_cleanup() {
+void cmd_http_cleanup() {
     curl_global_cleanup();
 }
