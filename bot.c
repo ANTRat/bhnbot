@@ -116,46 +116,14 @@ int main(int argc, char *argv[])
                     printf("CMD[%d]:        '%s'\n", tkn_indx, cmd_token);
                 }
             }
-            
 
-//            printf("status: %d\n", status);
-//            token = strtok(buff, delim);
-//            while(token != NULL)
-//            {
-//                printf("LOG[%d]: %s\n", status, token);
-//                token = strtok(NULL, delim);
-//            }
-
-            //char* join_line = "JOIN #bhngaming\r\n";
-            //send(s, join_line, strlen(join_line), 0);
             printf("thats it!\n");
         } else {
             break;
         }
     }
 
-    //printf("IP addresses for %s:\n\n", argv[1]);
-
-    //for(p = res;p != NULL; p = p->ai_next) {
-    //    void *addr;
-    //    char *ipver;
-
-    //    // get the pointer to the address itself,
-    //    // different fields in IPv4 and IPv6:
-    //    if (p->ai_family == AF_INET) { // IPv4
-    //        struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
-    //        addr = &(ipv4->sin_addr);
-    //        ipver = "IPv4";
-    //    } else { // IPv6
-    //        struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
-    //        addr = &(ipv6->sin6_addr);
-    //        ipver = "IPv6";
-    //    }
-
-    //    // convert the IP to a string and print it:
-    //    inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
-    //    printf("  %s: %s\n", ipver, ipstr);
-    //}
+    free(buff);
 
     freeaddrinfo(res); // free the linked list
 
