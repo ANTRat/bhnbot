@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
     char* serv = "irc.fauxsoft.com";
     char* port = "6667";
     char* nick = "btc-bot";
+    struct timeval timeout;
     struct addrinfo hints, *res;
     int status;
 
@@ -64,6 +65,21 @@ int main(int argc, char *argv[])
         fprintf(stderr, "i broked");
         return 2;
     } 
+
+    // set socket timeout
+    memset(&timeout, 0, sizeof timeout);
+    timeout.tv_sec = 2;
+    timeout.tv_usec = 0;
+
+    if (setsockopt (s, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof timeout) < 0) {
+        printf("setsockopt: SO_RCVTIMEO failed\n");
+        return 2;
+    }
+    if (setsockopt (s, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof timeout) < 0) {
+        printf("setsockopt: SO_SNDTIMEO failed\n");
+        return 2;
+    }
+
     if(connect(s, res->ai_addr, res->ai_addrlen) == -1)
     {
         fprintf(stderr, "connect broke");
@@ -118,8 +134,6 @@ int main(int argc, char *argv[])
             }
 
             printf("thats it!\n");
-        } else {
-            break;
         }
     }
 
