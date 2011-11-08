@@ -93,7 +93,9 @@ int cmd_http(int s, int https, char* line, char* token) {
 
     switch(resp) {
         case 200:
-            sprintf(pong_msg, "PRIVMSG #BHNGAMING :[ %s ]\r\n", title );
+            if( strlen(title) > 0 ) {
+                sprintf(pong_msg, "PRIVMSG #BHNGAMING :[ %s ]\r\n", title );
+            }
             break;
         default:
             sprintf(pong_msg, "PRIVMSG #BHNGAMING :[ HttpErr: %li ]\r\n", resp );
