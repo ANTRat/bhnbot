@@ -64,6 +64,7 @@ size_t cmd_http_writecallback(char *ptr, size_t size, size_t nmemb, void *userda
 int cmd_http(int s, int https, char* line, char* token) {
     int status = 0;
     title = malloc(sizeof(char) * 4096);
+    memset(title, 0,  4096);
 
     CURL* c = curl_easy_init();
     if( https ) {
