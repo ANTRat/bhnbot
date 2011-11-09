@@ -48,7 +48,11 @@ size_t cmd_http_writecallback(char *ptr, size_t size, size_t nmemb, void *userda
 
     title_end_loc = i + 1;
     
-    if(title_start_loc != 0 && title_end_loc != 0) {
+    // if we found the title then lets copy it!
+    // make sure that the locs are valid posisions
+    // also, a 4k title is insane
+    if(title_start_loc != 0 && title_end_loc != 0 && (title_end_loc - title_start_loc < 4096) ) {
+        // we should have alredy done this, but ~welp~
         memset(title, 0,  4096);
         memcpy(title, ptr + title_start_loc, title_end_loc - title_start_loc);
         char *p;
