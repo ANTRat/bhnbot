@@ -1,4 +1,3 @@
-*.pyc
 bot
 *.o
 .deps/
