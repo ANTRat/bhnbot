@@ -2,10 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([FULL-PACKAGE-NAME], [VERSION], [BUG-REPORT-ADDRESS])
-AC_CONFIG_SRCDIR([bot.c])
-AC_CONFIG_SRCDIR([bot_cmd_http.c])
-AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
+AC_INIT([bhnbot], [1.0], [jgworks@gmail.com])
+AC_CONFIG_SRCDIR([src])
+AM_INIT_AUTOMAKE(bhnbot, 1.0)
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
