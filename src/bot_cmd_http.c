@@ -1,3 +1,7 @@
+#include "config.h"
+
+#ifdef HAVE_LIBCURL
+
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -121,3 +125,4 @@ void cmd_http_init() {
 void cmd_http_cleanup() {
     curl_global_cleanup();
 }
+#endif

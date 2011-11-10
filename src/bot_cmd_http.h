@@ -1,3 +1,5 @@
+#include "config.h"
+
 #ifndef _botcmd_youtube_h
 #define _botcmd_youtube_h
 

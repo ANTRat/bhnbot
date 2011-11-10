@@ -12,6 +12,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include "bot_cmd_http.h"
+#include "config.h"
 
 char* strtolower(char* str) {
     char *p;
@@ -41,18 +42,19 @@ void handle_sigint(int sig) {
 
 int main(int argc, char *argv[])
 {
-    //char* serv = "irc.gamesurge.net";
-    char* serv = "irc.fauxsoft.com";
-    char* port = "6667";
-    char* nick = "bhn-bot";
-    char* channel = "#BHNGAMING";
+    char* serv = IRC_SERVER;
+    char* port = IRC_PORT;
+    char* nick = IRC_NICK;
+    char* channel = IRC_CHANNEL;
     struct timeval timeout;
     struct addrinfo hints, *res;
     int status;
 
     signal(SIGINT, handle_sigint);
 
+#ifdef HAVE_LIBCURL
     cmd_http_init();
+#endif
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
@@ -134,7 +136,9 @@ int main(int argc, char *argv[])
                                 cmd_hi(s, "List of Dicks:");
                                 cmd_hi(s, " You");
                                 cmd_hi(s, "-- Done");
-                            } else if( strstr(line, "http://") != NULL ) {
+                            }
+#ifdef HAVE_LIBCURL
+                             else if( strstr(line, "http://") != NULL ) {
                                 char* http_indx = strstr(line, "http://");
                                 char* spc_loc;
                                 for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
@@ -155,6 +159,7 @@ int main(int argc, char *argv[])
                                 *spc_loc = '\0';
                                 cmd_http(s, 1, line, http_indx);
                             }
+#endif
                             free(cmd);
                         }
                     } else if(tkn_indx == 1 && strncmp("001", strtoupper(cmd_token), strlen("001")) == 0) {
@@ -175,7 +180,9 @@ int main(int argc, char *argv[])
 
     freeaddrinfo(res); // free the linked list
 
+#ifdef HAVE_LIBCURL
     cmd_http_cleanup();
+#endif
 
     return EXIT_SUCCESS;
 }
