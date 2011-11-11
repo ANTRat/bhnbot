@@ -138,6 +138,29 @@ int main(int argc, char *argv[])
                                 cmd_hi(s, "-- Done");
                             }
 #ifdef HAVE_LIBCURL
+#ifdef STUMBLEUPON_FILTER
+                             else if( strstr(line, "http://www.stumbleupon.com/su/") != NULL ) {
+                                char* http_indx = strstr(line, "http://www.stumbleupon.com/su/");
+                                char* spc_loc;
+                                http_indx += strlen("http://www.stumbleupon.com/su/");
+                                for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
+                                    if( *spc_loc == '/') {
+                                        break;
+                                    }
+                                }
+                                http_indx = ++spc_loc;
+                                for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
+                                    if( !isgraph(*spc_loc) ) {
+                                        break;
+                                    }
+                                }
+                                *spc_loc = '\0';
+                                http_indx -= strlen("http://");
+                                memcpy(http_indx, "http://", strlen("http://"));
+                                cmd_hi(s, http_indx);
+                                cmd_http(s, 0, line, http_indx);
+                            }
+#endif
                              else if( strstr(line, "http://") != NULL ) {
                                 char* http_indx = strstr(line, "http://");
                                 char* spc_loc;
