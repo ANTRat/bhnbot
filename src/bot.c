@@ -148,17 +148,21 @@ int main(int argc, char *argv[])
                                         break;
                                     }
                                 }
-                                http_indx = ++spc_loc;
+                                if(*spc_loc != '\0') {
+                                    http_indx = ++spc_loc;
+                                }
                                 for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
                                     if( !isgraph(*spc_loc) ) {
                                         break;
                                     }
                                 }
                                 *spc_loc = '\0';
-                                http_indx -= strlen("http://");
-                                memcpy(http_indx, "http://", strlen("http://"));
-                                cmd_hi(s, http_indx);
-                                cmd_http(s, 0, line, http_indx);
+                                if( strlen(http_indx) > 0 ) {
+                                    http_indx -= strlen("http://");
+                                    memcpy(http_indx, "http://", strlen("http://"));
+                                    cmd_hi(s, http_indx);
+                                    cmd_http(s, 0, line, http_indx);
+                                }
                             }
 #endif
                              else if( strstr(line, "http://") != NULL ) {
