@@ -87,15 +87,17 @@ int cmd_http(int s, int https, char* line, char* token) {
     int rc;
     const char* prev_nick;
     const char* prev_line;
+    const char* prev_created;
     sqlite3_bind_text(srch_stmt, 1, token, -1, SQLITE_TRANSIENT);
     while((rc = sqlite3_step(srch_stmt)) == SQLITE_ROW) {
         found++;
         prev_nick = sqlite3_column_text(srch_stmt, 0);
         prev_line = sqlite3_column_text(srch_stmt, 4);
+        prev_created = sqlite3_column_text(srch_stmt, 5);
         break;
     }
     if( found ) {
-        sprintf(pong_msg, "PRIVMSG %s :[ OFN :: <%s> %s ]\r\n", IRC_CHANNEL, prev_nick, prev_line );
+        sprintf(pong_msg, "PRIVMSG %s :[ OFN :: %s <%s> %s ]\r\n", IRC_CHANNEL, prev_created, prev_nick, prev_line );
     }
     sqlite3_reset(srch_stmt);
 #endif
@@ -175,7 +177,7 @@ void cmd_http_init() {
     char* zErrMsg = NULL;
     int rc;
     rc = sqlite3_open("cmd_http_db", &db);
-    rc = sqlite3_exec(db, "create table if not exists http_urls (id INTEGER, nick TEXT, url TEXT, resp INTEGER, title TEXT, line TEXT, PRIMARY KEY(id ASC) );", NULL, 0, &zErrMsg);
+    rc = sqlite3_exec(db, "create table if not exists http_urls (id INTEGER, created INTEGER DEFAULT CURRENT_TIMESTAMP, time TEXT, nick TEXT, url TEXT, resp INTEGER, title TEXT, line TEXT, PRIMARY KEY(id ASC) );", NULL, 0, &zErrMsg);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
@@ -189,7 +191,7 @@ void cmd_http_init() {
         return;
     }
 
-    char* srch_stmt_sql = "select nick, url, resp, title, line from http_urls where url = ?;";
+    char* srch_stmt_sql = "select nick, url, resp, title, line, datetime(created, 'localtime') from http_urls where url = ?;";
     rc = sqlite3_prepare_v2( db, srch_stmt_sql, strlen(srch_stmt_sql), &srch_stmt, NULL);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "prepare srch_stmt failed: %i\n", rc);
