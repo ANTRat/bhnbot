@@ -198,6 +198,7 @@ int main(int argc, char *argv[])
                 }
 
                 free(line);
+                free(line2);
             }
 
             printf("thats it!\n");
