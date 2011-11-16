@@ -102,11 +102,11 @@ int cmd_http(int s, int https, char* line, char* token) {
     switch(resp) {
         case 200:
             if( strlen(title) > 0 ) {
-                sprintf(pong_msg, "PRIVMSG #BHNGAMING :[ %s ]\r\n", title );
+                sprintf(pong_msg, "PRIVMSG %s :[ %s ]\r\n", IRC_CHANNEL, title );
             }
             break;
         default:
-            sprintf(pong_msg, "PRIVMSG #BHNGAMING :[ HttpErr: %li ]\r\n", resp );
+            sprintf(pong_msg, "PRIVMSG %s :[ HttpErr: %li ]\r\n", IRC_CHANNEL, resp );
             break;
     }
 

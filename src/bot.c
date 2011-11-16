@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
     char* serv = IRC_SERVER;
     char* port = IRC_PORT;
     char* nick = IRC_NICK;
-    char* channel = IRC_CHANNEL;
     struct timeval timeout;
     struct addrinfo hints, *res;
     int status;
@@ -126,7 +125,7 @@ int main(int argc, char *argv[])
 
                     if(tkn_indx == 1 && strncmp("PRIVMSG", strtoupper(cmd_token), strlen("PRIVMESG")) == 0) {
                         cmd_token = strtok_r(NULL, " ", &cmd_buff);
-                        if(strncmp(channel, strtoupper(cmd_token), strlen(channel)) == 0){
+                        if(strncmp(IRC_CHANNEL, strtoupper(cmd_token), strlen(IRC_CHANNEL)) == 0){
                             cmd_token = strtok_r(NULL, " ", &cmd_buff);
 
                             char* cmd = malloc(sizeof(char) * strlen(cmd_token) + 1);
@@ -190,8 +189,10 @@ int main(int argc, char *argv[])
                             free(cmd);
                         }
                     } else if(tkn_indx == 1 && strncmp("001", strtoupper(cmd_token), strlen("001")) == 0) {
-                        char* join_cmd = "JOIN #BHNGAMING\r\n";
+                        char* join_cmd = malloc(sizeof(char) * 4096);
+                        sprintf(join_cmd, "JOIN %s\r\n", IRC_CHANNEL);
                         send(s, join_cmd, strlen(join_cmd), 0);
+                        free(join_cmd);
                     }
                     printf("CMD[%d]:        '%s'\n", tkn_indx, cmd_token);
                 }
@@ -256,7 +257,7 @@ int cmd_hi(int s, char* cmd_token) {
     char* pong_msg = malloc(sizeof(char) * 4096);
     memset(pong_msg, 0,  4096);
 
-    sprintf(pong_msg, "PRIVMSG #BHNGAMING :%s\r\n", cmd_token);
+    sprintf(pong_msg, "PRIVMSG %s :%s\r\n", IRC_CHANNEL, cmd_token);
     send(s, pong_msg, strlen(pong_msg), 0);
 
     free(pong_msg);

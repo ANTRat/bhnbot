@@ -22,11 +22,6 @@ AC_DEFINE_UNQUOTED([IRC_PORT], ["$with_ircport"], [The IRC port to connect to])
 AC_DEFINE_UNQUOTED([IRC_NICK], ["$with_ircnick"], [The IRC nick to connect to])
 AC_DEFINE_UNQUOTED([IRC_CHANNEL], ["$with_ircchannel"], [The IRC channel to connect to])
 
-AC_DEFINE_UNQUOTED([IRC_SERVER_NQ], [$with_ircserver], [The IRC server to connect to])
-AC_DEFINE_UNQUOTED([IRC_PORT_NQ], [$with_ircport], [The IRC port to connect to])
-AC_DEFINE_UNQUOTED([IRC_NICK_NQ], [$with_ircnick], [The IRC nick to connect to])
-AC_DEFINE_UNQUOTED([IRC_CHANNEL_NQ], [$with_ircchannel], [The IRC channel to connect to])
-
 AS_IF([test "x$enable_stumblefilter" != "xno"], [
     AC_DEFINE([STUMBLEUPON_FILTER], [1], [Should the stumbleupon filter be used])
 ])

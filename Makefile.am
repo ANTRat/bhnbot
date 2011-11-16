@@ -18,3 +18,4 @@ dist-clean:
 	rm -f install-sh
 	rm -f missing
 	rm -f stamp-h1
+	rm -f *~
