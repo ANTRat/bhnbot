@@ -106,8 +106,8 @@ int main(int argc, char *argv[])
             printf("status: %d\n", status);
             // per line loop
             for( line_token = strtok_r(buff, "\r\n", &line_buff) ; line_token != NULL ; line_token = strtok_r(NULL, "\r\n", &line_buff) ) {
-                char *line = malloc(sizeof(char) * strlen(line_token) + 1);
-                strcpy(line, line_token);
+                char *line = strdup(line_token);
+                char *line2 = strdup(line_token);
 
                 printf("LIN[%d]: '%s'\n", status, line_token);
                 int tkn_indx;
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
                                     http_indx -= strlen("http://");
                                     memcpy(http_indx, "http://", strlen("http://"));
                                     cmd_hi(s, http_indx);
-                                    cmd_http(s, 0, line, http_indx);
+                                    cmd_http(s, 0, line2, http_indx);
                                 }
                             }
 #endif
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
                                     }
                                 }
                                 *spc_loc = '\0';
-                                cmd_http(s, 0, line, http_indx);
+                                cmd_http(s, 0, line2, http_indx);
                             } else if( strstr(line, "https://") != NULL ) {
                                 char* http_indx = strstr(line, "https://");
                                 char* spc_loc;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
                                     }
                                 }
                                 *spc_loc = '\0';
-                                cmd_http(s, 1, line, http_indx);
+                                cmd_http(s, 1, line2, http_indx);
                             }
 #endif
                             free(cmd);

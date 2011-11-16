@@ -14,6 +14,7 @@ AC_ARG_WITH([ircserver], AS_HELP_STRING([--with-ircserver], [Define the IRC serv
 AC_ARG_WITH([ircport], AS_HELP_STRING([--with-ircport], [Define the IRC port to connect with]))
 AC_ARG_WITH([ircnick], AS_HELP_STRING([--with-ircnick], [Define the IRC nick to connect with]))
 AC_ARG_WITH([ircchannel], AS_HELP_STRING([--with-ircchannel], [Define the IRC channel to connect to]))
+AC_ARG_WITH([sqlite3], AS_HELP_STRING([--without-sqlite3], [Disable using sqlite3]))
 AC_ARG_ENABLE([http], AS_HELP_STRING([--disable-http], [Disables looking for page titles]))
 AC_ARG_ENABLE([stumblefilter], AS_HELP_STRING([--disable-stumblefilter], [Disables stumbleupon filter]))
 
@@ -30,6 +31,11 @@ AS_IF([test "x$enable_stumblefilter" != "xno"], [
 AS_IF([test "x$enable_http" != "xno"], [
     AC_CHECK_LIB([curl], [curl_easy_init])
 ])
+# Checks for libraries.
+AS_IF([test "x$with_sqlite3" != "xno"], [
+    AC_CHECK_LIB([sqlite3], [sqlite3_open])
+])
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netdb.h stdlib.h string.h sys/socket.h])
