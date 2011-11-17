@@ -86,18 +86,26 @@ int cmd_http(int s, int https, char* line, char* token) {
 #ifdef HAVE_LIBSQLITE3
     int rc;
     const unsigned char* prev_nick;
+    const unsigned char* prev_title;
     const unsigned char* prev_line;
     const unsigned char* prev_created;
     sqlite3_bind_text(srch_stmt, 1, token, -1, SQLITE_TRANSIENT);
     while((rc = sqlite3_step(srch_stmt)) == SQLITE_ROW) {
         found++;
         prev_nick = sqlite3_column_text(srch_stmt, 0);
+        prev_title = sqlite3_column_text(srch_stmt, 3);
         prev_line = sqlite3_column_text(srch_stmt, 4);
         prev_created = sqlite3_column_text(srch_stmt, 5);
         break;
     }
     if( found ) {
-        sprintf(pong_msg, "PRIVMSG %s :[ OFN :: %s <%s> %s ]\r\n", IRC_CHANNEL, prev_created, prev_nick, prev_line );
+        sprintf(pong_msg, "PRIVMSG %s :[ OFN :: %s <%s> :: %s :: %s ]\r\n",
+            IRC_CHANNEL,
+            prev_created,
+            prev_nick,
+            prev_title,
+            prev_line
+        );
     }
     sqlite3_reset(srch_stmt);
 #endif
