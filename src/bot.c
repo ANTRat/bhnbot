@@ -40,7 +40,7 @@ void handle_sigint(int sig) {
     signal(sig, handle_sigint);
 }
 
-int main(int argc, char *argv[])
+int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused)) )
 {
     char* serv = IRC_SERVER;
     char* port = IRC_PORT;

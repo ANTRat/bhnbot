@@ -24,10 +24,10 @@ sqlite3_stmt* srch_stmt;
 
 char* title;
 
-size_t cmd_http_writecallback(char *ptr, size_t size, size_t nmemb, void *userdata) {
-    int title_start_loc = 0;
-    int title_end_loc = 0;
-    int i = 0;
+size_t cmd_http_writecallback(char *ptr, size_t size, size_t nmemb, void *userdata __attribute__((unused)) ) {
+    size_t title_start_loc = 0;
+    size_t title_end_loc = 0;
+    size_t i = 0;
     for(i = 0; i < (size * nmemb); i++) {
         if (strncmp("<title>", ptr + i, strlen("<title>")) == 0) {
             title_start_loc = i + strlen("<title>");
@@ -85,9 +85,9 @@ int cmd_http(int s, int https, char* line, char* token) {
     memset(pong_msg, 0,  4096);
 #ifdef HAVE_LIBSQLITE3
     int rc;
-    const char* prev_nick;
-    const char* prev_line;
-    const char* prev_created;
+    const unsigned char* prev_nick;
+    const unsigned char* prev_line;
+    const unsigned char* prev_created;
     sqlite3_bind_text(srch_stmt, 1, token, -1, SQLITE_TRANSIENT);
     while((rc = sqlite3_step(srch_stmt)) == SQLITE_ROW) {
         found++;
