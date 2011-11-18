@@ -99,12 +99,12 @@ int cmd_http(int s, int https, char* line, char* token) {
         break;
     }
     if( found ) {
-        sprintf(pong_msg, "PRIVMSG %s :[ OFN :: %s <%s> :: %s :: %s ]\r\n",
+        sprintf(pong_msg, "PRIVMSG %s :[ OFN :: %s <%s> %s :: %s ]\r\n",
             IRC_CHANNEL,
             prev_created,
             prev_nick,
-            prev_title,
-            prev_line
+            prev_line,
+            prev_title
         );
     }
     sqlite3_reset(srch_stmt);
