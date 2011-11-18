@@ -138,7 +138,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                             }
 #ifdef HAVE_LIBCURL
 #ifdef STUMBLEUPON_FILTER
-                             else if( strstr(line, "http://www.stumbleupon.com/su/") != NULL ) {
+                            else if( strstr(line, "http://www.stumbleupon.com/su/") != NULL ) {
                                 char* http_indx = strstr(line, "http://www.stumbleupon.com/su/");
                                 char* spc_loc;
                                 http_indx += strlen("http://www.stumbleupon.com/su/");
@@ -164,7 +164,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                                 }
                             }
 #endif
-                             else if( strstr(line, "http://") != NULL ) {
+                            else if( strstr(line, "http://") != NULL ) {
                                 char* http_indx = strstr(line, "http://");
                                 char* spc_loc;
                                 for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
@@ -174,7 +174,8 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                                 }
                                 *spc_loc = '\0';
                                 cmd_http(s, 0, line2, http_indx);
-                            } else if( strstr(line, "https://") != NULL ) {
+                            }
+                            else if( strstr(line, "https://") != NULL ) {
                                 char* http_indx = strstr(line, "https://");
                                 char* spc_loc;
                                 for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
