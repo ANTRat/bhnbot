@@ -164,6 +164,9 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                                 }
                             }
 #endif
+                            else if(strncmp(":!LASTLINKS", strtoupper(cmd_token), strlen(":!LASTLINKS")) == 0){
+                                cmd_http_lastlinks(s);
+                            }
                             else if( strstr(line, "http://") != NULL ) {
                                 char* http_indx = strstr(line, "http://");
                                 char* spc_loc;

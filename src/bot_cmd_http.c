@@ -19,6 +19,7 @@
 sqlite3* db;
 sqlite3_stmt* ins_stmt;
 sqlite3_stmt* srch_stmt;
+sqlite3_stmt* last_srch_stmt;
 
 #endif
 
@@ -178,6 +179,40 @@ int cmd_http(int s, int https, char* line, char* token) {
     return status;
 }
 
+#ifdef HAVE_LIBSQLITE3
+void cmd_http_lastlinks(int s) {
+    char* pong_msg = malloc(sizeof(char) * 4096);
+
+    int rc;
+    const unsigned char* prev_nick;
+    const unsigned char* prev_title;
+    const unsigned char* prev_line;
+    const unsigned char* prev_created;
+    while((rc = sqlite3_step(last_srch_stmt)) == SQLITE_ROW) {
+        memset(pong_msg, 0,  4096);
+
+        prev_nick = sqlite3_column_text(last_srch_stmt, 0);
+        prev_title = sqlite3_column_text(last_srch_stmt, 3);
+        prev_line = sqlite3_column_text(last_srch_stmt, 4);
+        prev_created = sqlite3_column_text(last_srch_stmt, 5);
+
+        sprintf(pong_msg, "PRIVMSG %s :[ OFN :: %s <%s> %s :: %s ]\r\n",
+            IRC_CHANNEL,
+            prev_created,
+            prev_nick,
+            prev_line,
+            prev_title
+        );
+
+        if( strlen(pong_msg) > 0 ) {
+            send(s, pong_msg, strlen(pong_msg), 0);
+        }
+    }
+    sqlite3_reset(last_srch_stmt);
+    free(pong_msg);
+}
+#endif
+
 void cmd_http_init() {
     curl_global_init(CURL_GLOBAL_ALL);
 
@@ -205,6 +240,13 @@ void cmd_http_init() {
         fprintf(stderr, "prepare srch_stmt failed: %i\n", rc);
         return;
     }
+
+    char* last_srch_stmt_sql = "select nick, url, resp, title, line, datetime(created, 'localtime') from http_urls order by created desc limit 5;";
+    rc = sqlite3_prepare_v2( db, last_srch_stmt_sql, strlen(last_srch_stmt_sql), &last_srch_stmt, NULL);
+    if( rc != SQLITE_OK ) {
+        fprintf(stderr, "prepare last_srch_stmt failed: %i\n", rc);
+        return;
+    }
 #endif
 
 }
@@ -215,6 +257,7 @@ void cmd_http_cleanup() {
 #ifdef HAVE_LIBSQLITE3
     sqlite3_finalize(ins_stmt);
     sqlite3_finalize(srch_stmt);
+    sqlite3_finalize(last_srch_stmt);
     sqlite3_close(db);
 #endif
 
