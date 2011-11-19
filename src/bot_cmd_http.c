@@ -188,6 +188,7 @@ void cmd_http_lastlinks(int s) {
     const unsigned char* prev_title;
     const unsigned char* prev_line;
     const unsigned char* prev_created;
+    int prev_id;
     while((rc = sqlite3_step(last_srch_stmt)) == SQLITE_ROW) {
         memset(pong_msg, 0,  4096);
 
@@ -195,9 +196,11 @@ void cmd_http_lastlinks(int s) {
         prev_title = sqlite3_column_text(last_srch_stmt, 3);
         prev_line = sqlite3_column_text(last_srch_stmt, 4);
         prev_created = sqlite3_column_text(last_srch_stmt, 5);
+        prev_id = sqlite3_column_int(last_srch_stmt, 6);
 
-        sprintf(pong_msg, "PRIVMSG %s :[ OFN :: %s <%s> %s :: %s ]\r\n",
+        sprintf(pong_msg, "PRIVMSG %s :[ Link #%i :: %s <%s> %s :: %s ]\r\n",
             IRC_CHANNEL,
+            prev_id,
             prev_created,
             prev_nick,
             prev_line,
@@ -241,7 +244,7 @@ void cmd_http_init() {
         return;
     }
 
-    char* last_srch_stmt_sql = "select nick, url, resp, title, line, datetime(created, 'localtime') from http_urls order by created desc limit 5;";
+    char* last_srch_stmt_sql = "select nick, url, resp, title, line, datetime(created, 'localtime'), id from http_urls order by created desc limit 5;";
     rc = sqlite3_prepare_v2( db, last_srch_stmt_sql, strlen(last_srch_stmt_sql), &last_srch_stmt, NULL);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "prepare last_srch_stmt failed: %i\n", rc);
