@@ -133,8 +133,19 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
 
                             if( strstr(line, ":!help") != NULL ){
                                 cmd_echo(s, "Available Commands:");
+                                cmd_echo(s, "   !lastlinks          Prints the last 5 links entered");
+                                cmd_echo(s, "   !title      <text>  Searches titles for <text>");
                             }
 #ifdef HAVE_LIBCURL
+#ifdef HAVE_LIBSQLITE3
+                            else if( strstr(line, ":!lastlinks") != NULL ){
+                                cmd_http_lastlinks(s);
+                            }
+                            else if( strstr(line, ":!title ") != NULL ){
+                                char* search_term = strstr(line, ":!title ") + strlen(":!title ");
+                                cmd_http_title_search(s, search_term);
+                            }
+#endif
 #ifdef STUMBLEUPON_FILTER
                             else if( strstr(line, "http://www.stumbleupon.com/su/") != NULL ) {
                                 char* http_indx = strstr(line, "http://www.stumbleupon.com/su/");
@@ -162,9 +173,6 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                                 }
                             }
 #endif
-                            else if( strstr(line, ":!lastlinks") != NULL ){
-                                cmd_http_lastlinks(s);
-                            }
                             else if( strstr(line, "http://") != NULL ) {
                                 char* http_indx = strstr(line, "http://");
                                 char* spc_loc;
