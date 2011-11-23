@@ -30,7 +30,7 @@ char* strtoupper(char* str) {
 
 int sendident(int s, char* nick, char* user, char* host);
 int pong(int s, char* cmd_token);
-int cmd_hi(int s, char* cmd_token);
+int cmd_echo(int s, char* cmd_token);
 
 // signal handling from: http://www.gnu.org/s/hello/manual/libc/Handler-Returns.html
 volatile sig_atomic_t running = 1;
@@ -131,10 +131,8 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                             char* cmd = malloc(sizeof(char) * strlen(cmd_token) + 1);
                             strcpy(cmd, cmd_token);
 
-                            if(strncmp(":!DICKS", strtoupper(cmd_token), strlen(":!DICKS")) == 0){
-                                cmd_hi(s, "List of Dicks:");
-                                cmd_hi(s, " You");
-                                cmd_hi(s, "-- Done");
+                            if( strstr(line, ":!help") != NULL ){
+                                cmd_echo(s, "Available Commands:");
                             }
 #ifdef HAVE_LIBCURL
 #ifdef STUMBLEUPON_FILTER
@@ -159,12 +157,12 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                                 if( strlen(http_indx) > 0 ) {
                                     http_indx -= strlen("http://");
                                     memcpy(http_indx, "http://", strlen("http://"));
-                                    cmd_hi(s, http_indx);
+                                    cmd_echo(s, http_indx);
                                     cmd_http(s, 0, line2, http_indx);
                                 }
                             }
 #endif
-                            else if(strncmp(":!LASTLINKS", strtoupper(cmd_token), strlen(":!LASTLINKS")) == 0){
+                            else if( strstr(line, ":!lastlinks") != NULL ){
                                 cmd_http_lastlinks(s);
                             }
                             else if( strstr(line, "http://") != NULL ) {
@@ -257,7 +255,7 @@ int pong(int s, char* cmd_token) {
     return status;
 }
 
-int cmd_hi(int s, char* cmd_token) {
+int cmd_echo(int s, char* cmd_token) {
     int status = 0;
     char* pong_msg = malloc(sizeof(char) * 4096);
     memset(pong_msg, 0,  4096);
