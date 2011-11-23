@@ -1,5 +1,5 @@
 bin_PROGRAMS = bot
-bot_SOURCES = src/bot.c src/bot_cmd_http.c src/bot_cmd_http.h
+bot_SOURCES = src/bot.c src/bot_cmd_echo.c src/bot_cmd_echo.h src/bot_cmd_http.c src/bot_cmd_http.h
 bot_CFLAGS = -Wall -Wextra
 
 dist-clean:

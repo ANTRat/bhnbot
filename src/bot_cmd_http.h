@@ -1,7 +1,7 @@
 #include "config.h"
 
-#ifndef _botcmd_youtube_h
-#define _botcmd_youtube_h
+#ifndef _bot_cmd_http_h
+#define _bot_cmd_http_h
 
 void cmd_http_init();
 void cmd_http_cleanup();

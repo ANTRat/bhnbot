@@ -12,6 +12,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <curl/curl.h>
+#include "bot_cmd_echo.h"
 
 #ifdef HAVE_LIBSQLITE3
 #include <sqlite3.h>

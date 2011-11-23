@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include "bot_cmd_echo.h"
 #include "bot_cmd_http.h"
 #include "config.h"
 
@@ -30,7 +31,6 @@ char* strtoupper(char* str) {
 
 int sendident(int s, char* nick, char* user, char* host);
 int pong(int s, char* cmd_token);
-int cmd_echo(int s, char* cmd_token);
 
 // signal handling from: http://www.gnu.org/s/hello/manual/libc/Handler-Returns.html
 volatile sig_atomic_t running = 1;
@@ -255,14 +255,3 @@ int pong(int s, char* cmd_token) {
     return status;
 }
 
-int cmd_echo(int s, char* cmd_token) {
-    int status = 0;
-    char* pong_msg = malloc(sizeof(char) * 4096);
-    memset(pong_msg, 0,  4096);
-
-    sprintf(pong_msg, "PRIVMSG %s :%s\r\n", IRC_CHANNEL, cmd_token);
-    send(s, pong_msg, strlen(pong_msg), 0);
-
-    free(pong_msg);
-    return status;
-}
