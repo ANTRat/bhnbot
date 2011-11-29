@@ -170,15 +170,8 @@ int cmd_http(int s, int https, char* line, char* token) {
         sqlite3_reset(fts_title_ins_stmt);
 #endif
 
-        switch(resp) {
-            case 200:
-                if( strlen(title) > 0 ) {
-                    sprintf(pong_msg, "PRIVMSG %s :[ %s ]\r\n", IRC_CHANNEL, title );
-                }
-                break;
-            default:
-                sprintf(pong_msg, "PRIVMSG %s :[ HttpErr: %li ]\r\n", IRC_CHANNEL, resp );
-                break;
+        if( strlen(title) > 0 ) {
+            sprintf(pong_msg, "PRIVMSG %s :[ %s ]\r\n", IRC_CHANNEL, title );
         }
 
         free(title);
@@ -286,7 +279,7 @@ void cmd_http_init() {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     }
-    rc = sqlite3_exec(db, "create virtual table http_titles using fts4 ( title TEXT, id INTEGER, tokenize=porter, order=desc );", NULL, 0, &zErrMsg);
+    rc = sqlite3_exec(db, "create virtual table http_titles using fts3 ( title TEXT, id INTEGER, tokenize=porter, order=desc );", NULL, 0, &zErrMsg);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
@@ -302,7 +295,7 @@ void cmd_http_init() {
         fprintf(stderr, "prepare fts_title_ins_stmt failed: %i\n", rc);
         return;
     }
-    char* fts_title_srch_stmt_sql = "select b.nick, b.url, b.resp, b.title, b.line, datetime(b.created, 'localtime'), b.id from http_titles a inner join http_urls b on a.id = b.id where a.title match ? limit 5;";
+    char* fts_title_srch_stmt_sql = "select b.nick, b.url, b.resp, b.title, b.line, datetime(b.created, 'localtime'), b.id from http_titles a inner join http_urls b on a.id = b.id where a.title match ? order by created desc limit 5;";
     rc = sqlite3_prepare_v2( db, fts_title_srch_stmt_sql, strlen(fts_title_srch_stmt_sql), &fts_title_srch_stmt, NULL);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "prepare fts_title_srch_stmt failed: %i\n", rc);
