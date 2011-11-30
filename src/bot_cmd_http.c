@@ -125,8 +125,8 @@ int cmd_http(int s, int https, char* line, char* token) {
         } else {
             curl_easy_setopt(c, CURLOPT_URL, token + strlen("http://"));
         }
-        curl_easy_setopt(c, CURLOPT_PROTOCOLS, CURLPROTO_HTTP);
-        curl_easy_setopt(c, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP);
+        curl_easy_setopt(c, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+        curl_easy_setopt(c, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
         curl_easy_setopt(c, CURLOPT_HTTPGET, 1);
         curl_easy_setopt(c, CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(c, CURLOPT_MAXREDIRS, 10);
