@@ -12,5 +12,9 @@ void cmd_http_lastlinks(int s);
 void cmd_http_title_search(int s, char* search_term);
 #endif
 
+#ifdef HAVE_LIBJANSSON
+char* cmd_http_shortenurl(char* longurl);
+#endif
+
 
 #endif

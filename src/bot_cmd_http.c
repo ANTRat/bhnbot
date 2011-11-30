@@ -13,6 +13,9 @@
 #include <arpa/inet.h>
 #include <curl/curl.h>
 #include "bot_cmd_echo.h"
+#ifdef HAVE_LIBJANSSON
+#include <jansson.h>
+#endif
 
 #ifdef HAVE_LIBSQLITE3
 #include <sqlite3.h>
@@ -26,6 +29,84 @@ sqlite3_stmt* last_srch_stmt;
 sqlite3_stmt* fts_title_ins_stmt;
 sqlite3_stmt* fts_title_srch_stmt;
 
+#endif
+
+#ifdef HAVE_LIBJANSSON
+char* json_resp;
+size_t cmd_http_longurlcallback(char *ptr, size_t size, size_t nmemb, void *userdata __attribute__((unused)) ) {
+    strncpy(json_resp, ptr, size * nmemb);
+    return size * nmemb;
+}
+
+char* cmd_http_shortenurl(char* longurl){
+    json_resp = malloc(sizeof(char) * 4096);
+    memset(json_resp, 0,  4096);
+
+    char* pong_msg = malloc(sizeof(char) * 4096);
+    memset(pong_msg, 0,  4096);
+
+    char* api_url = malloc(sizeof(char) * 4096);
+    memset(api_url, 0,  4096);
+    sprintf(api_url, "https://www.googleapis.com/urlshortener/v1/url?key=%s", GOOGLE_API_KEY);
+
+    long resp;
+    char* url;
+    struct curl_slist* urlshortener_header = NULL;
+
+    urlshortener_header = curl_slist_append(urlshortener_header, "Content-Type: application/json");
+
+    sprintf(pong_msg, "{\"longUrl\": \"%s\"}", longurl);
+
+    CURL* c = curl_easy_init();
+    curl_easy_setopt(c, CURLOPT_URL, api_url);
+    curl_easy_setopt(c, CURLOPT_HTTPHEADER, urlshortener_header);
+    curl_easy_setopt(c, CURLOPT_POST, 1);
+    curl_easy_setopt(c, CURLOPT_POSTFIELDS, pong_msg);
+    curl_easy_setopt(c, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+    curl_easy_setopt(c, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTPS);
+    curl_easy_setopt(c, CURLOPT_FOLLOWLOCATION, 1);
+    curl_easy_setopt(c, CURLOPT_MAXREDIRS, 10);
+    curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, &cmd_http_longurlcallback);
+    curl_easy_setopt(c, CURLOPT_VERBOSE, 1);
+    curl_easy_perform(c);
+
+    curl_easy_getinfo(c, CURLINFO_RESPONSE_CODE, &resp);
+    curl_easy_getinfo(c, CURLINFO_EFFECTIVE_URL, &url);
+
+    curl_easy_cleanup(c);
+
+    curl_slist_free_all(urlshortener_header);
+
+    free(pong_msg);
+    free(api_url);
+
+    char* shorturl = NULL;
+
+    json_error_t error;
+    json_t* root;
+    json_t* id;
+
+    root = json_loads(json_resp, 0, &error);
+    if( root )
+    {
+        id = json_object_get(root, "id");
+        if( json_is_string(id) )
+        {
+            shorturl = strdup(json_string_value(id));
+            printf("Short URL: %s\n", shorturl);
+        } else {
+            fprintf(stderr, "Id is not a string");
+        }
+
+        json_decref(root);
+
+    } else {
+        fprintf(stderr, "Error parsing json: %d: %s\n", error.line, error.text);
+    }
+
+    free(json_resp);
+    return shorturl;
+}
 #endif
 
 char* title;
@@ -171,7 +252,15 @@ int cmd_http(int s, int https, char* line, char* token) {
 #endif
 
         if( strlen(title) > 0 ) {
+#ifdef HAVE_LIBJANSSON
+            char* shorturl;
+            shorturl = cmd_http_shortenurl(url);
+            sprintf(pong_msg, "PRIVMSG %s :[ %s :: %s ]\r\n", IRC_CHANNEL, title, shorturl );
+            free(shorturl);
+#endif
+#ifndef HAVE_LIBJANSSON
             sprintf(pong_msg, "PRIVMSG %s :[ %s ]\r\n", IRC_CHANNEL, title );
+#endif
         }
 
         free(title);
