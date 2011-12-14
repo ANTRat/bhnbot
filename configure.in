@@ -9,6 +9,8 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CC_C_O
+AM_PROG_CC_C_O
 
 AC_ARG_WITH([ircserver], AS_HELP_STRING([--with-ircserver], [Define the IRC server to connect with]))
 AC_ARG_WITH([ircport], AS_HELP_STRING([--with-ircport], [Define the IRC port to connect with]))

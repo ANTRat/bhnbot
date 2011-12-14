@@ -10,6 +10,7 @@ dist-clean:
 	rm -f Makefile.in
 	rm -f aclocal.m4
 	rm -rf autom4te.cache/
+	rm -f compile
 	rm -f config.h
 	rm -f config.h.in
 	rm -f config.log
