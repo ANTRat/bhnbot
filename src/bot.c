@@ -1,7 +1,4 @@
-/*
-** showip.c -- show IP addresses for a host given on the command line
-*/
-
+#include "config.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +10,6 @@
 #include <arpa/inet.h>
 #include "bot_cmd_echo.h"
 #include "bot_cmd_http.h"
-#include "config.h"
 
 char* strtolower(char* str) {
     char *p;
