@@ -1,5 +1,5 @@
 bin_PROGRAMS = bhnbot
-bhnbot_SOURCES = src/bot.c src/bot_cmd_echo.c src/bot_cmd_echo.h src/bot_cmd_http.c src/bot_cmd_http.h
+bhnbot_SOURCES = src/bot.c src/bot_conf.c src/bot_cmd_echo.c src/bot_cmd_echo.h src/bot_cmd_http.c src/bot_cmd_http.h
 bhnbot_CFLAGS = -Wall -Wextra -Werror
 
 dist-clean:

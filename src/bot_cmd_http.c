@@ -12,10 +12,11 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <curl/curl.h>
-#include "bot_cmd_echo.h"
-#ifdef HAVE_LIBJANSSON
 #include <jansson.h>
-#endif
+#include "bot_conf.h"
+#include "bot_cmd_echo.h"
+
+extern botconf_t* conf;
 
 #ifdef HAVE_LIBSQLITE3
 #include <sqlite3.h>
@@ -31,7 +32,7 @@ sqlite3_stmt* fts_title_srch_stmt;
 
 #endif
 
-#ifdef HAVE_LIBJANSSON
+#ifdef ENABLE_SHORTURLS
 char* json_resp;
 size_t cmd_http_longurlcallback(char *ptr, size_t size, size_t nmemb, void *userdata __attribute__((unused)) ) {
     strncpy(json_resp, ptr, size * nmemb);
@@ -47,7 +48,7 @@ char* cmd_http_shortenurl(char* longurl){
 
     char* api_url = malloc(sizeof(char) * 4096);
     memset(api_url, 0,  4096);
-    sprintf(api_url, "https://www.googleapis.com/urlshortener/v1/url?key=%s", GOOGLE_API_KEY);
+    sprintf(api_url, "https://www.googleapis.com/urlshortener/v1/url?key=%s", conf->google_api_key);
 
     long resp;
     char* url;
@@ -187,7 +188,7 @@ int cmd_http(int s, int https, char* line, char* token) {
     }
     if( found ) {
         sprintf(pong_msg, "PRIVMSG %s :[ OFN :: %s <%s> %s :: %s ]\r\n",
-            IRC_CHANNEL,
+            conf->channel,
             prev_created,
             prev_nick,
             prev_line,
@@ -252,14 +253,14 @@ int cmd_http(int s, int https, char* line, char* token) {
 #endif
 
         if( strlen(title) > 0 ) {
-#ifdef HAVE_LIBJANSSON
+#ifdef ENABLE_SHORTURLS
             char* shorturl;
             shorturl = cmd_http_shortenurl(url);
-            sprintf(pong_msg, "PRIVMSG %s :[ %s :: %s ]\r\n", IRC_CHANNEL, title, shorturl );
+            sprintf(pong_msg, "PRIVMSG %s :[ %s :: %s ]\r\n", conf->channel, title, shorturl );
             free(shorturl);
 #endif
-#ifndef HAVE_LIBJANSSON
-            sprintf(pong_msg, "PRIVMSG %s :[ %s ]\r\n", IRC_CHANNEL, title );
+#ifndef ENABLE_SHORTURLS
+            sprintf(pong_msg, "PRIVMSG %s :[ %s ]\r\n", conf->channel, title );
 #endif
         }
 
@@ -293,7 +294,7 @@ void cmd_http_lastlinks(int s) {
         prev_id = sqlite3_column_int(last_srch_stmt, 6);
 
         sprintf(pong_msg, "PRIVMSG %s :[ Link #%i :: %s <%s> %s :: %s ]\r\n",
-            IRC_CHANNEL,
+            conf->channel,
             prev_id,
             prev_created,
             prev_nick,
@@ -331,7 +332,7 @@ void cmd_http_title_search(int s, char* search_term) {
         prev_id = sqlite3_column_int(fts_title_srch_stmt, 6);
 
         sprintf(pong_msg, "PRIVMSG %s :[ Link #%i :: %s <%s> %s :: %s ]\r\n",
-            IRC_CHANNEL,
+            conf->channel,
             prev_id,
             prev_created,
             prev_nick,

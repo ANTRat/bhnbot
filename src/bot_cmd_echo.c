@@ -8,14 +8,16 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include "config.h"
+#include "bot_conf.h"
 
+extern botconf_t* conf;
 
 int cmd_echo(int s, char* message) {
     int status = 0;
     char* pong_msg = malloc(sizeof(char) * 4096);
     memset(pong_msg, 0,  4096);
 
-    sprintf(pong_msg, "PRIVMSG %s :%s\r\n", IRC_CHANNEL, message);
+    sprintf(pong_msg, "PRIVMSG %s :%s\r\n", conf->channel, message);
     send(s, pong_msg, strlen(pong_msg), 0);
 
     free(pong_msg);

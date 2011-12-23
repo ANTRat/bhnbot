@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include "bot_conf.h"
 #include "bot_cmd_echo.h"
 #include "bot_cmd_http.h"
 
@@ -25,7 +26,7 @@ char* strtoupper(char* str) {
     return str;
 }
 
-int sendident(int s, char* nick, char* user, char* host);
+int sendident(int s, const char* nick, const char* user, const char* host);
 int pong(int s, char* cmd_token);
 
 // signal handling from: http://www.gnu.org/s/hello/manual/libc/Handler-Returns.html
@@ -36,11 +37,19 @@ void handle_sigint(int sig) {
     signal(sig, handle_sigint);
 }
 
+botconf_t* conf;
+
 int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused)) )
 {
-    char* serv = IRC_SERVER;
-    char* port = IRC_PORT;
-    char* nick = IRC_NICK;
+    conf = botconf_load_file("bhnbot.conf");
+    if( !conf ) {
+        exit(1);
+    }
+    botconf_print(conf);
+
+    // char* serv = IRC_SERVER;
+    // char* port = IRC_PORT;
+    // char* nick = IRC_NICK;
     struct timeval timeout;
     struct addrinfo hints, *res;
     int status;
@@ -55,7 +64,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
     hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version
     hints.ai_socktype = SOCK_STREAM;
 
-    if ((status = getaddrinfo(serv, port, &hints, &res)) != 0) {
+    if ((status = getaddrinfo(conf->server, conf->port, &hints, &res)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
         return 2;
     }
@@ -87,7 +96,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
         return 2;
     }
     
-    sendident(s, nick, nick, serv);
+    sendident(s, conf->nick, conf->nick, conf->server);
 
     int max_len = 4096;
     char* buff = malloc(sizeof(char) * max_len);
@@ -121,7 +130,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
 
                     if(tkn_indx == 1 && strncmp("PRIVMSG", strtoupper(cmd_token), strlen("PRIVMESG")) == 0) {
                         cmd_token = strtok_r(NULL, " ", &cmd_buff);
-                        if(strncmp(IRC_CHANNEL, strtoupper(cmd_token), strlen(IRC_CHANNEL)) == 0){
+                        if(strncmp(conf->channel, strtoupper(cmd_token), strlen(conf->channel)) == 0){
                             cmd_token = strtok_r(NULL, " ", &cmd_buff);
 
                             char* cmd = malloc(sizeof(char) * strlen(cmd_token) + 1);
@@ -142,7 +151,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                                 cmd_http_title_search(s, search_term);
                             }
 #endif
-#ifdef STUMBLEUPON_FILTER
+#ifdef ENABLE_STUMBLEUPONFILTER
                             else if( strstr(line, "http://www.stumbleupon.com/su/") != NULL ) {
                                 char* http_indx = strstr(line, "http://www.stumbleupon.com/su/");
                                 char* spc_loc;
@@ -195,8 +204,10 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                             free(cmd);
                         }
                     } else if(tkn_indx == 1 && strncmp("001", strtoupper(cmd_token), strlen("001")) == 0) {
+                        botconf_on_connect_send(conf, s);
+
                         char* join_cmd = malloc(sizeof(char) * 4096);
-                        sprintf(join_cmd, "JOIN %s\r\n", IRC_CHANNEL);
+                        sprintf(join_cmd, "JOIN %s\r\n", conf->channel);
                         send(s, join_cmd, strlen(join_cmd), 0);
                         free(join_cmd);
                     }
@@ -222,7 +233,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
     return EXIT_SUCCESS;
 }
 
-int sendident(int s, char* nick, char* user, char* host){
+int sendident(int s, const char* nick, const char* user, const char* host){
     int status = 0;
     char* nick_templ = "NICK %s\r\n";
     char* user_templ = "USER %s %s bla :Bright Bot\r\n";

@@ -17,3 +17,6 @@ install-sh
 missing
 stamp-h1
 *~
+bhnbot.conf
+cmd_http_db
+
