@@ -26,6 +26,35 @@ char* strtoupper(char* str) {
     return str;
 }
 
+char *stristr(char *haystack, const char *needle)
+{
+   if ( !*needle )
+   {
+      return haystack;
+   }
+   for ( ; *haystack; ++haystack )
+   {
+      if ( toupper(*haystack) == toupper(*needle) )
+      {
+         // Matched starting char -- loop through remaining chars.
+         const char *h, *n;
+         for ( h = haystack, n = needle; *h && *n; ++h, ++n )
+         {
+            if ( toupper(*h) != toupper(*n) )
+            {
+               break;
+            }
+         }
+         if ( !*n ) /* matched all of 'needle' to null termination */
+         {
+            return haystack; /* return the start of the match */
+         }
+      }
+   }
+   return 0;
+}
+
+
 int sendident(int s, const char* nick, const char* user, const char* host);
 int pong(int s, char* cmd_token);
 
@@ -130,30 +159,31 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
 
                     if(tkn_indx == 1 && strncmp("PRIVMSG", strtoupper(cmd_token), strlen("PRIVMESG")) == 0) {
                         cmd_token = strtok_r(NULL, " ", &cmd_buff);
-                        if(strncmp(conf->channel, strtoupper(cmd_token), strlen(conf->channel)) == 0){
+                        // if(strncmp(conf->channel, strtoupper(cmd_token), strlen(conf->channel)) == 0){
+                        if( stristr(cmd_token, conf->channel) != NULL ){
                             cmd_token = strtok_r(NULL, " ", &cmd_buff);
 
                             char* cmd = malloc(sizeof(char) * strlen(cmd_token) + 1);
                             strcpy(cmd, cmd_token);
 
-                            if( strstr(line, ":!help") != NULL ){
+                            if( stristr(line, ":!help") != NULL ){
                                 cmd_echo(s, "Available Commands:");
                                 cmd_echo(s, "   !lastlinks          Prints the last 5 links entered");
                                 cmd_echo(s, "   !title      <text>  Searches titles for <text>");
                             }
 #ifdef HAVE_LIBCURL
 #ifdef HAVE_LIBSQLITE3
-                            else if( strstr(line, ":!lastlinks") != NULL ){
+                            else if( stristr(line, ":!lastlinks") != NULL ){
                                 cmd_http_lastlinks(s);
                             }
-                            else if( strstr(line, ":!title ") != NULL ){
-                                char* search_term = strstr(line, ":!title ") + strlen(":!title ");
+                            else if( stristr(line, ":!title ") != NULL ){
+                                char* search_term = stristr(line, ":!title ") + strlen(":!title ");
                                 cmd_http_title_search(s, search_term);
                             }
 #endif
 #ifdef ENABLE_STUMBLEUPONFILTER
-                            else if( strstr(line, "http://www.stumbleupon.com/su/") != NULL ) {
-                                char* http_indx = strstr(line, "http://www.stumbleupon.com/su/");
+                            else if( stristr(line, "http://www.stumbleupon.com/su/") != NULL ) {
+                                char* http_indx = stristr(line, "http://www.stumbleupon.com/su/");
                                 char* spc_loc;
                                 http_indx += strlen("http://www.stumbleupon.com/su/");
                                 for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
@@ -178,8 +208,8 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                                 }
                             }
 #endif
-                            else if( strstr(line, "http://") != NULL ) {
-                                char* http_indx = strstr(line, "http://");
+                            else if( stristr(line, "http://") != NULL ) {
+                                char* http_indx = stristr(line, "http://");
                                 char* spc_loc;
                                 for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
                                     if( !isgraph(*spc_loc) ) {
@@ -189,8 +219,8 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                                 *spc_loc = '\0';
                                 cmd_http(s, 0, line2, http_indx);
                             }
-                            else if( strstr(line, "https://") != NULL ) {
-                                char* http_indx = strstr(line, "https://");
+                            else if( stristr(line, "https://") != NULL ) {
+                                char* http_indx = stristr(line, "https://");
                                 char* spc_loc;
                                 for(spc_loc = http_indx; *spc_loc != '\0'; spc_loc++) {
                                     if( !isgraph(*spc_loc) ) {
