@@ -12,6 +12,7 @@ typedef struct {
 #ifdef ENABLE_SHORTURLS
     const char* google_api_key;
 #endif
+    int debug;
     json_t* root;
     json_t* on_connect_send;
 } botconf_t;

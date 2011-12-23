@@ -31,6 +31,7 @@ botconf_t* botconf_load_file(const char *path) {
 #ifdef ENABLE_SHORTURLS
     json_t* google_api_key = json_object_get(conf->root, "google_api_key");
 #endif
+    json_t* debug = json_object_get(conf->root, "debug");
     json_t* on_connect_send = json_object_get(conf->root, "on_connect_send");
 
     if(    !server
@@ -58,6 +59,12 @@ botconf_t* botconf_load_file(const char *path) {
         return NULL;
     }
 
+    if( !debug || !json_is_integer(debug) ) {
+        conf->debug = 0;
+    } else {
+        conf->debug = json_integer_value(debug);
+    }
+
     conf->server = json_string_value(server);
     conf->port = json_string_value(port);
     conf->nick = json_string_value(nick);
@@ -83,7 +90,7 @@ void botconf_on_connect_send(const botconf_t* conf, int s) {
 
             if( s ) {
                 send(s, send_cmd, strlen(send_cmd), 0);
-            } else {
+            } else if ( conf->debug ) {
                 printf("  on_connect_send[%d,%d]: %s", s, (int)i, send_cmd);
             }
 
@@ -94,8 +101,9 @@ void botconf_on_connect_send(const botconf_t* conf, int s) {
 }
 
 void botconf_print(botconf_t* conf) {
-    printf("From config file:\n");
-    printf("  server: %s\n  port: %s\n  nick: %s\n  channel: %s\n  google_api_key: %s\n", 
+    if( !conf->debug)
+        return;
+    printf("From config file:\n  server: %s\n  port: %s\n  nick: %s\n  channel: %s\n  google_api_key: %s\n  debug: %d\n", 
         conf->server
       , conf->port
       , conf->nick
@@ -106,6 +114,7 @@ void botconf_print(botconf_t* conf) {
 #ifndef ENABLE_SHORTURLS
       , ""
 #endif
+      , conf->debug
     );
     botconf_on_connect_send(conf, 0);
 }

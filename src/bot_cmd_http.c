@@ -94,7 +94,7 @@ char* cmd_http_shortenurl(char* longurl){
         if( json_is_string(id) )
         {
             shorturl = strdup(json_string_value(id));
-            printf("Short URL: %s\n", shorturl);
+            if( conf->debug >= 2) printf("Short URL: %s\n", shorturl);
         } else {
             fprintf(stderr, "Id is not a string");
         }

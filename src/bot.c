@@ -54,7 +54,6 @@ char *stristr(char *haystack, const char *needle)
    return 0;
 }
 
-
 int sendident(int s, const char* nick, const char* user, const char* host);
 int pong(int s, char* cmd_token);
 
@@ -111,11 +110,11 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
     timeout.tv_usec = 0;
 
     if (setsockopt (s, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof timeout) < 0) {
-        printf("setsockopt: SO_RCVTIMEO failed\n");
+        fprintf(stderr, "setsockopt: SO_RCVTIMEO failed\n");
         return 2;
     }
     if (setsockopt (s, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof timeout) < 0) {
-        printf("setsockopt: SO_SNDTIMEO failed\n");
+        fprintf(stderr, "setsockopt: SO_SNDTIMEO failed\n");
         return 2;
     }
 
@@ -137,13 +136,13 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
     while(running){
         memset(buff, 0, max_len);
         if((status = recv(s, buff, max_len, 0)) > 0) {
-            printf("status: %d\n", status);
+            if( conf->debug >= 2 ) printf("status: %d\n", status);
             // per line loop
             for( line_token = strtok_r(buff, "\r\n", &line_buff) ; line_token != NULL ; line_token = strtok_r(NULL, "\r\n", &line_buff) ) {
                 char *line = strdup(line_token);
                 char *line2 = strdup(line_token);
 
-                printf("LIN[%d]: '%s'\n", status, line_token);
+                if( conf->debug >= 1 ) printf("LIN[%d]: '%s'\n", status, line_token);
                 int tkn_indx;
                 for(    tkn_indx = 0 , cmd_token = strtok_r(line_token, " ", &cmd_buff) ;
                         cmd_token != NULL;
@@ -241,14 +240,14 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                         send(s, join_cmd, strlen(join_cmd), 0);
                         free(join_cmd);
                     }
-                    printf("CMD[%d]:        '%s'\n", tkn_indx, cmd_token);
+                    if( conf->debug >= 2 ) printf("CMD[%d]:        '%s'\n", tkn_indx, cmd_token);
                 }
 
                 free(line);
                 free(line2);
             }
 
-            printf("thats it!\n");
+            if( conf->debug >= 3 ) printf("thats it!\n");
         }
     }
 
