@@ -232,7 +232,9 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
 #endif
                             free(cmd);
                         }
-                    } else if(tkn_indx == 1 && strncmp("001", strtoupper(cmd_token), strlen("001")) == 0) {
+                    }
+                    //} else if(tkn_indx == 1 && strncmp("001", strtoupper(cmd_token), strlen("001")) == 0) {
+                    else if( tkn_indx == 1 && strstr(cmd_token, "001") != NULL ) {
                         botconf_on_connect_send(conf, s);
 
                         char* join_cmd = malloc(sizeof(char) * 4096);
