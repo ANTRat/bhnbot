@@ -68,6 +68,7 @@ char* cmd_http_shortenurl(char* longurl){
     curl_easy_setopt(c, CURLOPT_FOLLOWLOCATION, 1);
     curl_easy_setopt(c, CURLOPT_MAXREDIRS, 10);
     curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, &cmd_http_longurlcallback);
+    curl_easy_setopt(c, CURLOPT_TIMEOUT, 10);
     curl_easy_setopt(c, CURLOPT_VERBOSE, 1);
     curl_easy_perform(c);
 
