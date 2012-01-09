@@ -169,7 +169,9 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                     if(tkn_indx == 1 && strncmp("PRIVMSG", strtoupper(cmd_token), strlen("PRIVMESG")) == 0) {
                         cmd_token = strtok_r(NULL, " ", &cmd_buff);
 
-                        if( stristr(cmd_token, conf->channel) != NULL ){
+                        if( *cmd_token == '#' ){
+                            conf->channel = cmd_token;
+
                             cmd_token = strtok_r(NULL, " ", &cmd_buff);
 
                             char* cmd = malloc(sizeof(char) * strlen(cmd_token) + 1);
@@ -246,11 +248,6 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                     // we just connected, do on connect stuff
                     else if( tkn_indx == 1 && strstr(cmd_token, "001") != NULL ) {
                         botconf_on_connect_send(conf, s);
-
-                        char* join_cmd = malloc(sizeof(char) * 4096);
-                        sprintf(join_cmd, "JOIN %s\r\n", conf->channel);
-                        send(s, join_cmd, strlen(join_cmd), 0);
-                        free(join_cmd);
                     }
                     if( conf->debug >= 2 ) printf("CMD[%d]:        '%s'\n", tkn_indx, cmd_token);
                 }
