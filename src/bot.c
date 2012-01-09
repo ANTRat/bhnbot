@@ -1,4 +1,5 @@
 #include "config.h"
+#include <errno.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -106,7 +107,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
 
     // set socket timeout
     memset(&timeout, 0, sizeof timeout);
-    timeout.tv_sec = 2;
+    timeout.tv_sec = 10;
     timeout.tv_usec = 0;
 
     if (setsockopt (s, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof timeout) < 0) {
@@ -135,7 +136,16 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
     
     while(running){
         memset(buff, 0, max_len);
-        if((status = recv(s, buff, max_len, 0)) > 0) {
+        status = recv(s, buff, max_len, 0);
+        if( status == -1 && errno == EAGAIN ) {
+            continue;
+        }
+        else if ( status == 0 || status == -1 )
+        {
+            printf("status: %d, errno: %d\n", status, (int)errno);
+            break;
+        }
+        else if ( status > 0 ) {
             if( conf->debug >= 2 ) printf("status: %d\n", status);
             // per line loop
             for( line_token = strtok_r(buff, "\r\n", &line_buff) ; line_token != NULL ; line_token = strtok_r(NULL, "\r\n", &line_buff) ) {
@@ -250,6 +260,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
             if( conf->debug >= 3 ) printf("thats it!\n");
         }
     }
+    printf("status: %d\n", status);
 
     free(buff);
 
