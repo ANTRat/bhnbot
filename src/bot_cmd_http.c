@@ -386,7 +386,7 @@ void cmd_http_init() {
         fprintf(stderr, "prepare fts_title_ins_stmt failed: %i\n", rc);
         return;
     }
-    char* fts_title_srch_stmt_sql = "select b.nick, b.url, b.resp, b.title, b.line, datetime(b.created, 'localtime'), b.id from http_titles a inner join http_urls b on a.id = b.id where a.title match ? order by created desc limit 5;";
+    char* fts_title_srch_stmt_sql = "select b.nick, b.url, b.resp, b.title, b.line, datetime(b.created, 'localtime'), b.id from http_titles a inner join http_urls b on a.id = b.id where a.title match ? order by created desc limit 3;";
     rc = sqlite3_prepare_v2( db, fts_title_srch_stmt_sql, strlen(fts_title_srch_stmt_sql), &fts_title_srch_stmt, NULL);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "prepare fts_title_srch_stmt failed: %i\n", rc);
@@ -411,7 +411,7 @@ void cmd_http_init() {
         return;
     }
 
-    char* last_srch_stmt_sql = "select nick, url, resp, title, line, datetime(created, 'localtime'), id from http_urls order by created desc limit 5;";
+    char* last_srch_stmt_sql = "select nick, url, resp, title, line, datetime(created, 'localtime'), id from http_urls order by created desc limit 3;";
     rc = sqlite3_prepare_v2( db, last_srch_stmt_sql, strlen(last_srch_stmt_sql), &last_srch_stmt, NULL);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "prepare last_srch_stmt failed: %i\n", rc);
