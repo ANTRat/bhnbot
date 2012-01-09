@@ -154,11 +154,9 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                         break;
                     }
 
-                    //cmd_token = strtok_r(NULL, " ", &cmd_buff);
-
                     if(tkn_indx == 1 && strncmp("PRIVMSG", strtoupper(cmd_token), strlen("PRIVMESG")) == 0) {
                         cmd_token = strtok_r(NULL, " ", &cmd_buff);
-                        // if(strncmp(conf->channel, strtoupper(cmd_token), strlen(conf->channel)) == 0){
+
                         if( stristr(cmd_token, conf->channel) != NULL ){
                             cmd_token = strtok_r(NULL, " ", &cmd_buff);
 
@@ -233,7 +231,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                             free(cmd);
                         }
                     }
-                    //} else if(tkn_indx == 1 && strncmp("001", strtoupper(cmd_token), strlen("001")) == 0) {
+                    // we just connected, do on connect stuff
                     else if( tkn_indx == 1 && strstr(cmd_token, "001") != NULL ) {
                         botconf_on_connect_send(conf, s);
 
