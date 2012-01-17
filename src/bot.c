@@ -76,9 +76,6 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
     }
     botconf_print(conf);
 
-    // char* serv = IRC_SERVER;
-    // char* port = IRC_PORT;
-    // char* nick = IRC_NICK;
     struct timeval timeout;
     struct addrinfo hints, *res;
     int status;
