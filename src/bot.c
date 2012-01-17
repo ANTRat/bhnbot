@@ -163,6 +163,10 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                         pong(s, cmd_token);
                         break;
                     }
+                    if(tkn_indx == 0 && stristr(cmd_token, "ERROR") != NULL) {
+                        running = 0;
+                        fprintf(stderr, "Recieved ERROR, quitting\n");
+                    }
 
                     if(tkn_indx == 1 && strncmp("PRIVMSG", strtoupper(cmd_token), strlen("PRIVMESG")) == 0) {
                         cmd_token = strtok_r(NULL, " ", &cmd_buff);
