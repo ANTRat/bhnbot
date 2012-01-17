@@ -133,6 +133,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
     char* line_buff;
     char* cmd_token;
     char* cmd_buff;
+    char* token_match;
     
     while(running){
         memset(buff, 0, max_len);
@@ -158,12 +159,12 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                         cmd_token != NULL;
                         tkn_indx++, cmd_token = strtok_r(NULL, " ", &cmd_buff) ) {
 
-                    if(tkn_indx == 0 && strncmp("PING", strtoupper(cmd_token), strlen("PING")) == 0) {
+                    if(tkn_indx == 0 && (token_match = stristr(cmd_token, "PING")) != NULL && (token_match - cmd_token) == 0) {
                         cmd_token = strtok_r(NULL, " ", &cmd_buff);
                         pong(s, cmd_token);
                         break;
                     }
-                    if(tkn_indx == 0 && stristr(cmd_token, "ERROR") != NULL) {
+                    if(tkn_indx == 0 && (token_match = stristr(cmd_token, "ERROR")) != NULL && (token_match - cmd_token) == 0) {
                         running = 0;
                         fprintf(stderr, "Recieved ERROR, quitting\n");
                     }
