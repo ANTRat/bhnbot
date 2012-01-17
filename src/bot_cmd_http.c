@@ -179,6 +179,7 @@ int cmd_http(int s, int https, char* line, char* token) {
     const unsigned char* prev_line;
     const unsigned char* prev_created;
     sqlite3_bind_text(srch_stmt, 1, token, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(srch_stmt, 2, conf->channel, -1, SQLITE_TRANSIENT);
     while((rc = sqlite3_step(srch_stmt)) == SQLITE_ROW) {
         found++;
         prev_nick = sqlite3_column_text(srch_stmt, 0);
@@ -238,6 +239,7 @@ int cmd_http(int s, int https, char* line, char* token) {
             rc = sqlite3_bind_text(ins_stmt, 4, "", 0, SQLITE_STATIC);
         }
         rc = sqlite3_bind_text(ins_stmt, 5, start_line, -1, SQLITE_TRANSIENT);
+        rc = sqlite3_bind_text(ins_stmt, 6, conf->channel, -1, SQLITE_TRANSIENT);
         rc = sqlite3_step(ins_stmt);
         if( rc != SQLITE_DONE ) {
             fprintf(stderr, "sqlite3_step() failed: %i\n", rc);
@@ -285,6 +287,7 @@ void cmd_http_lastlinks(int s) {
     const unsigned char* prev_line;
     const unsigned char* prev_created;
     int prev_id;
+    sqlite3_bind_text(last_srch_stmt, 1, conf->channel, -1, SQLITE_TRANSIENT);
     while((rc = sqlite3_step(last_srch_stmt)) == SQLITE_ROW) {
         memset(pong_msg, 0,  4096);
 
@@ -322,6 +325,7 @@ void cmd_http_title_search(int s, char* search_term) {
     int prev_id;
 
     rc = sqlite3_bind_text(fts_title_srch_stmt, 1, search_term, -1, SQLITE_TRANSIENT);
+    rc = sqlite3_bind_text(fts_title_srch_stmt, 2, conf->channel, -1, SQLITE_TRANSIENT);
 
     while((rc = sqlite3_step(fts_title_srch_stmt)) == SQLITE_ROW) {
         memset(pong_msg, 0,  4096);
@@ -365,11 +369,14 @@ void cmd_http_init() {
         return;
     }
     rc = sqlite3_exec(db, "alter table http_urls add column chname TEXT;", NULL, 0, &zErrMsg);
-    if( rc != SQLITE_OK ) {
-        fprintf(stderr, "SQL error: %s\n", zErrMsg);
-        sqlite3_free(zErrMsg);
-        exit(1);
-        return;
+    if( rc == SQLITE_OK ) {
+        rc = sqlite3_exec(db, "update http_urls set chname = \"#bhngaming\";", NULL, 0, &zErrMsg);
+        if( rc != SQLITE_OK ) {
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+            sqlite3_free(zErrMsg);
+            exit(1);
+            return;
+        }
     }
     // full text search
     rc = sqlite3_exec(db, "drop table http_titles;", NULL, 0, &zErrMsg);
@@ -393,7 +400,7 @@ void cmd_http_init() {
         fprintf(stderr, "prepare fts_title_ins_stmt failed: %i\n", rc);
         return;
     }
-    char* fts_title_srch_stmt_sql = "select b.nick, b.url, b.resp, b.title, b.line, datetime(b.created, 'localtime'), b.id from http_titles a inner join http_urls b on a.id = b.id where a.title match ? order by created desc limit 3;";
+    char* fts_title_srch_stmt_sql = "select b.nick, b.url, b.resp, b.title, b.line, datetime(b.created, 'localtime'), b.id from http_titles a inner join http_urls b on a.id = b.id where a.title match ? and b.chname = ? order by created desc limit 3;";
     rc = sqlite3_prepare_v2( db, fts_title_srch_stmt_sql, strlen(fts_title_srch_stmt_sql), &fts_title_srch_stmt, NULL);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "prepare fts_title_srch_stmt failed: %i\n", rc);
@@ -404,21 +411,21 @@ void cmd_http_init() {
 // select b.nick, b.url, b.resp, b.title, b.line, datetime(b.created, 'localtime'), b.id from http_titles a inner join http_urls b on a.id = b.id where a.title match ?;
 
 
-    char* ins_stmt_sql = "insert into http_urls (nick, url, resp, title, line) values (?, ?, ?, ?, ?);";
+    char* ins_stmt_sql = "insert into http_urls (nick, url, resp, title, line, chname) values (?, ?, ?, ?, ?, ?);";
     rc = sqlite3_prepare_v2( db, ins_stmt_sql, strlen(ins_stmt_sql), &ins_stmt, NULL);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "prepare ins_stmt failed: %i\n", rc);
         return;
     }
 
-    char* srch_stmt_sql = "select nick, url, resp, title, line, datetime(created, 'localtime') from http_urls where url = ? limit 1;";
+    char* srch_stmt_sql = "select nick, url, resp, title, line, datetime(created, 'localtime') from http_urls where url = ? and chname = ? limit 1;";
     rc = sqlite3_prepare_v2( db, srch_stmt_sql, strlen(srch_stmt_sql), &srch_stmt, NULL);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "prepare srch_stmt failed: %i\n", rc);
         return;
     }
 
-    char* last_srch_stmt_sql = "select nick, url, resp, title, line, datetime(created, 'localtime'), id from http_urls order by created desc limit 3;";
+    char* last_srch_stmt_sql = "select nick, url, resp, title, line, datetime(created, 'localtime'), id from http_urls where chname = ? order by created desc limit 3;";
     rc = sqlite3_prepare_v2( db, last_srch_stmt_sql, strlen(last_srch_stmt_sql), &last_srch_stmt, NULL);
     if( rc != SQLITE_OK ) {
         fprintf(stderr, "prepare last_srch_stmt failed: %i\n", rc);
