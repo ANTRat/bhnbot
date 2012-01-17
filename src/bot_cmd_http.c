@@ -364,6 +364,13 @@ void cmd_http_init() {
         exit(1);
         return;
     }
+    rc = sqlite3_exec(db, "alter table http_urls add column chname TEXT;", NULL, 0, &zErrMsg);
+    if( rc != SQLITE_OK ) {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        exit(1);
+        return;
+    }
     // full text search
     rc = sqlite3_exec(db, "drop table http_titles;", NULL, 0, &zErrMsg);
     if( rc != SQLITE_OK ) {
