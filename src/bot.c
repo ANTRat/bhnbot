@@ -179,16 +179,16 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
 
                             if( stristr(line, ":!help") != NULL ){
                                 cmd_echo(s, "Available Commands:");
-                                cmd_echo(s, "   !lastlinks          Prints the last 5 links entered");
-                                cmd_echo(s, "   !title      <text>  Searches titles for <text>");
+                                cmd_echo(s, "   !list           Prints the last 5 links entered");
+                                cmd_echo(s, "   !last <text>    Searches titles for <text>");
                             }
 #ifdef HAVE_LIBCURL
 #ifdef HAVE_LIBSQLITE3
-                            else if( stristr(line, ":!lastlinks") != NULL ){
+                            else if( stristr(line, ":!list") != NULL ){
                                 cmd_http_lastlinks(s);
                             }
-                            else if( stristr(line, ":!title ") != NULL ){
-                                char* search_term = stristr(line, ":!title ") + strlen(":!title ");
+                            else if( stristr(line, ":!last ") != NULL ){
+                                char* search_term = stristr(line, ":!last ") + strlen(":!last ");
                                 cmd_http_title_search(s, search_term);
                             }
 #endif
