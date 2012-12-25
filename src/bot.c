@@ -12,6 +12,7 @@
 #include "bot_conf.h"
 #include "bot_cmd_echo.h"
 #include "bot_cmd_http.h"
+#include "bot_cmd_imgur.h"
 
 char* strtolower(char* str) {
     char *p;
@@ -190,6 +191,13 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                             else if( stristr(line, ":!last ") != NULL ){
                                 char* search_term = stristr(line, ":!last ") + strlen(":!last ");
                                 cmd_http_title_search(s, search_term);
+                            }
+#endif
+#ifdef ENABLE_IMGURAPI
+                            else if( stristr(line, "imgur.com/") != NULL ) {
+                                char* imgur_id = cmd_imgur_get_imageid(line);
+                                cmd_imgur(s, imgur_id);
+                                free(imgur_id);
                             }
 #endif
 #ifdef ENABLE_STUMBLEUPONFILTER
