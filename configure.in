@@ -23,7 +23,7 @@ AS_IF([test "x$enable_stumbleupon-filter" != "xno"], [
     AC_DEFINE([ENABLE_STUMBLEUPONFILTER], [1], [Should the stumbleupon filter be used])
 ])
 AS_IF([test "x$enable_shorturls" != "xno"], [
-    AC_DEFINE([ENABLE_SHORTURLS], [1], [Should the stumbleupon filter be used])
+    AC_DEFINE([ENABLE_SHORTURLS], [1], [Should short urls be used])
 ])
 AS_IF([test "x$enable_imgurapi" != "xno"], [
     AC_DEFINE([ENABLE_IMGURAPI], [1], [Should the imgur API be used])
