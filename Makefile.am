@@ -2,6 +2,9 @@ bin_PROGRAMS = bhnbot
 bhnbot_SOURCES = src/bot.c src/bot_conf.c src/bot_cmd_echo.c src/bot_cmd_echo.h src/bot_cmd_http.c src/bot_cmd_http.h src/bot_cmd_imgur.c src/bot_cmd_imgur.h
 bhnbot_CFLAGS = -Wall -Wextra -Werror
 
+test:
+	valgrind --track-origins=yes --leak-check=full --show-reachable=yes ./bhnbot |& less
+
 dist-clean:
 	rm -f bot
 	rm -f bhnbot
