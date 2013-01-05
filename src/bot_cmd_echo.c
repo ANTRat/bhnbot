@@ -18,7 +18,12 @@ int cmd_echo(int s, char* message) {
     memset(pong_msg, 0,  4096);
 
     sprintf(pong_msg, "PRIVMSG %s :%s\r\n", conf->channel, message);
-    send(s, pong_msg, strlen(pong_msg), 0);
+
+    if( !s ) {
+        printf(pong_msg);
+    } else {
+        send(s, pong_msg, strlen(pong_msg), 0);
+    }
 
     free(pong_msg);
     return status;
