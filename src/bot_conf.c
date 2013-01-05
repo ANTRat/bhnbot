@@ -57,6 +57,7 @@ botconf_t* botconf_load_file(const char *path) {
     }
 
     if( !debug || !json_is_integer(debug) ) {
+        json_decref(debug);
         conf->debug = 0;
     } else {
         conf->debug = json_integer_value(debug);
@@ -71,6 +72,11 @@ botconf_t* botconf_load_file(const char *path) {
     conf->on_connect_send = on_connect_send;
 
     return conf;
+}
+
+void botconf_free_conf(botconf_t* conf) {
+    json_decref(conf->root);
+    free(conf);
 }
 
 void botconf_on_connect_send(const botconf_t* conf, int s) {

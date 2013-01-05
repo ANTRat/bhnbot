@@ -277,6 +277,7 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
     cmd_http_cleanup();
 #endif
 
+    botconf_free_conf(conf);
     return EXIT_SUCCESS;
 }
 

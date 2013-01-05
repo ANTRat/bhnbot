@@ -18,6 +18,7 @@ typedef struct {
 } botconf_t;
 
 botconf_t* botconf_load_file(const char *path);
+void botconf_free_conf(botconf_t* conf);
 void botconf_on_connect_send(const botconf_t* conf, int s);
 void botconf_print(botconf_t* conf);
 
