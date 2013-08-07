@@ -168,6 +168,7 @@ size_t cmd_http_writecallback(char *ptr, size_t size, size_t nmemb, void *userda
 }
 
 int cmd_http(int s, int https, char* line, char* token) {
+    line = line;
     int status = 0;
     int found = 0;
     char* pong_msg = malloc(sizeof(char) * 4096);
@@ -266,7 +267,11 @@ int cmd_http(int s, int https, char* line, char* token) {
 #endif
 
         if( strlen(title) > 0 ) {
+#ifdef ENABLE_SHORTURLS
             sprintf(pong_msg, "PRIVMSG %s :[ %s :: %s ]\r\n", conf->channel, title, shorturl );
+#else
+            sprintf(pong_msg, "PRIVMSG %s :[ %s ]\r\n", conf->channel, title );
+#endif
         }
 
 #ifdef ENABLE_SHORTURLS
