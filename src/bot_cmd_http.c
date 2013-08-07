@@ -209,12 +209,14 @@ int cmd_http(int s, int https, char* line, char* token) {
 
         CURL* c = curl_easy_init();
         if( https ) {
-            curl_easy_setopt(c, CURLOPT_URL, token + strlen("https://"));
+          curl_easy_setopt(c, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS | CURLPROTO_HTTP);
+          curl_easy_setopt(c, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTPS | CURLPROTO_HTTP);
+          curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER,0);
         } else {
-            curl_easy_setopt(c, CURLOPT_URL, token + strlen("http://"));
+          curl_easy_setopt(c, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+          curl_easy_setopt(c, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
         }
-        curl_easy_setopt(c, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-        curl_easy_setopt(c, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+        curl_easy_setopt(c, CURLOPT_URL, token);
         curl_easy_setopt(c, CURLOPT_HTTPGET, 1);
         curl_easy_setopt(c, CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(c, CURLOPT_MAXREDIRS, 10);
