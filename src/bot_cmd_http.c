@@ -168,6 +168,7 @@ size_t cmd_http_writecallback(char *ptr, size_t size, size_t nmemb, void *userda
 }
 
 int cmd_http(int s, int https, char* line, char* token) {
+    line = line;
     int status = 0;
     int found = 0;
     char* pong_msg = malloc(sizeof(char) * 4096);
@@ -208,12 +209,14 @@ int cmd_http(int s, int https, char* line, char* token) {
 
         CURL* c = curl_easy_init();
         if( https ) {
-            curl_easy_setopt(c, CURLOPT_URL, token + strlen("https://"));
+          curl_easy_setopt(c, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS | CURLPROTO_HTTP);
+          curl_easy_setopt(c, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTPS | CURLPROTO_HTTP);
+          curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER,0);
         } else {
-            curl_easy_setopt(c, CURLOPT_URL, token + strlen("http://"));
+          curl_easy_setopt(c, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+          curl_easy_setopt(c, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
         }
-        curl_easy_setopt(c, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-        curl_easy_setopt(c, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+        curl_easy_setopt(c, CURLOPT_URL, token);
         curl_easy_setopt(c, CURLOPT_HTTPGET, 1);
         curl_easy_setopt(c, CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(c, CURLOPT_MAXREDIRS, 10);
@@ -266,7 +269,11 @@ int cmd_http(int s, int https, char* line, char* token) {
 #endif
 
         if( strlen(title) > 0 ) {
+#ifdef ENABLE_SHORTURLS
             sprintf(pong_msg, "PRIVMSG %s :[ %s :: %s ]\r\n", conf->channel, title, shorturl );
+#else
+            sprintf(pong_msg, "PRIVMSG %s :[ %s ]\r\n", conf->channel, title );
+#endif
         }
 
 #ifdef ENABLE_SHORTURLS

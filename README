@@ -1,0 +1,17 @@
+Hello, Welcome to bhnbot source code
+
+Dependencies:
+jansson-devel (for the the configuration file named bhnbot.conf)
+libcurl-devel (for anything that uses curl)
+pcre-devel (for imgur)
+
+
+
+Because ANTRat forgot how to,
+here is how to compile:
+$ autoreconf --force --install
+$ ./configure
+$ make
+create bhnbot.conf, based on the bhnbot.example.conf file
+$ ./bhnbot
+

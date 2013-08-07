@@ -194,11 +194,13 @@ int main( int argc __attribute__((unused)), char *argv[] __attribute__((unused))
                             }
 #endif
 #ifdef ENABLE_IMGURAPI
+#ifdef HAVE_LIBPCRE
                             else if( stristr(line, "imgur.com/") != NULL ) {
                                 char* imgur_id = cmd_imgur_get_imageid(line);
                                 cmd_imgur(s, imgur_id);
                                 free(imgur_id);
                             }
+#endif
 #endif
 #ifdef ENABLE_STUMBLEUPONFILTER
                             else if( stristr(line, "http://www.stumbleupon.com/su/") != NULL ) {
