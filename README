@@ -4,7 +4,7 @@ Dependencies:
 jansson-devel (for the the configuration file named bhnbot.conf)
 libcurl-devel (for anything that uses curl)
 pcre-devel (for imgur)
-
+sqlite-devel
 
 
 Because ANTRat forgot how to,
