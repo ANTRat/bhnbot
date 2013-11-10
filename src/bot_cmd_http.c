@@ -269,14 +269,14 @@ int cmd_http(int s, int https, char* line, char* token) {
 #endif
 
         if( strlen(title) > 0 ) {
-#ifdef ENABLE_SHORTURLS
+#if defined(ENABLE_SHORTURLS) && defined(HAVE_LIBSQLITE3)
             sprintf(pong_msg, "PRIVMSG %s :[ %s :: %s ]\r\n", conf->channel, title, shorturl );
 #else
             sprintf(pong_msg, "PRIVMSG %s :[ %s ]\r\n", conf->channel, title );
 #endif
         }
 
-#ifdef ENABLE_SHORTURLS
+#if defined(ENABLE_SHORTURLS) && defined(HAVE_LIBSQLITE3)
         free(shorturl);
 #endif
         free(title);
